@@ -13,6 +13,11 @@
     <File Path=".github/workflows/build.yml" />
     <File Path=".github/workflows/codeql-analysis.yml" />
   </Folder>
+  <Folder Name="/Npgsql/">
+    <Project Path="../npgsql/src/Npgsql/Npgsql.csproj" />
+    <Project Path="../npgsql/src/Npgsql.NodaTime/Npgsql.NodaTime.csproj" />
+    <Project Path="..//npgsql/src/Npgsql.NetTopologySuite/Npgsql.NetTopologySuite.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/EFCore.PG.NodaTime/EFCore.PG.NodaTime.csproj" />
     <Project Path="src/EFCore.PG.NTS/EFCore.PG.NTS.csproj" />
