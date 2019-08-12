@@ -14,9 +14,13 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" PrivateAssets="none" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" PrivateAssets="none" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" PrivateAssets="none" />
-    <PackageReference Include="Npgsql" />
+<!--    <PackageReference Include="Npgsql" />-->
   </ItemGroup>
 
+  <ItemGroup>       
+    <ProjectReference Include="../../../npgsql/src/Npgsql/Npgsql.csproj" />  
+  </ItemGroup>
+    
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
