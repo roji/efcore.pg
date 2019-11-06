@@ -9,18 +9,25 @@
     <RootNamespace>Npgsql.EntityFrameworkCore.PostgreSQL</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!-- PrivateAssets="none" is set to flow the EF Core analyzer to users referencing this package https://github.com/aspnet/EntityFrameworkCore/pull/11350 -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore" PrivateAssets="none" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" PrivateAssets="none" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" PrivateAssets="none" />
-    <PackageReference Include="Npgsql" />
-  </ItemGroup>
+<!--  <ItemGroup>-->
+<!--    &lt;!&ndash; PrivateAssets="none" is set to flow the EF Core analyzer to users referencing this package https://github.com/aspnet/EntityFrameworkCore/pull/11350 &ndash;&gt;-->
+<!--    <PackageReference Include="Microsoft.EntityFrameworkCore" PrivateAssets="none" />-->
+<!--    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" PrivateAssets="none" />-->
+<!--    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" PrivateAssets="none" />-->
+<!--    <PackageReference Include="Npgsql" />-->
+<!--  </ItemGroup>-->
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <ProjectReference Include="../../../npgsql/src/Npgsql/Npgsql.csproj" />
+    <ProjectReference Include="../../../efcore/src/EFCore/EFCore.csproj" />
+    <ProjectReference Include="../../../efcore/src/EFCore.Relational/EFCore.Relational.csproj" />
+    <ProjectReference Include="../../../efcore/src/EFCore.Abstractions/EFCore.Abstractions.csproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />
 
@@ -43,5 +50,5 @@
       <CustomToolNamespace>Npgsql.EntityFrameworkCore.PostgreSQL.Internal</CustomToolNamespace>
     </EmbeddedResource>
   </ItemGroup>
-  
+
 </Project>
