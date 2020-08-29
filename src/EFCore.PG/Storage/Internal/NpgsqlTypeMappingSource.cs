@@ -44,8 +44,8 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
         readonly LongTypeMapping               _int8               = new LongTypeMapping("bigint", DbType.Int64);
 
         // Character types
-        readonly StringTypeMapping             _text               = new StringTypeMapping("text", DbType.String);
-        readonly StringTypeMapping             _varchar            = new StringTypeMapping("character varying", DbType.String);
+        readonly NpgsqlStringTypeMapping       _text               = new NpgsqlStringTypeMapping("text", NpgsqlDbType.Text);
+        readonly NpgsqlStringTypeMapping       _varchar            = new NpgsqlStringTypeMapping("character varying", NpgsqlDbType.Varchar);
         readonly NpgsqlCharacterTypeMapping    _char               = new NpgsqlCharacterTypeMapping("character");
         readonly CharTypeMapping               _singleChar         = new CharTypeMapping("character(1)", DbType.String);
         readonly NpgsqlCharacterTypeMapping    _stringAsSingleChar = new NpgsqlCharacterTypeMapping("character(1)");
@@ -365,7 +365,7 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
             {
                 if (clrType == typeof(string))
                 {
-                    mapping = mappingInfo.IsFixedLength ?? false ? _char : _varchar;
+                    mapping = mappingInfo.IsFixedLength ?? false ? _char : (StringTypeMapping)_varchar;
 
                     // See #342 for when size > 10485760
                     return mappingInfo.Size <= 10485760

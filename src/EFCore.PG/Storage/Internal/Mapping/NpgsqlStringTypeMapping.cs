@@ -45,5 +45,24 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping
             else
                 throw new InvalidOperationException($"Npgsql-specific type mapping {GetType().Name} being used with non-Npgsql parameter type {parameter.GetType().Name}");
         }
+
+        static readonly char[] LineBreakChars = { '\r', '\n' };
+
+        protected override string GenerateNonNullSqlLiteral(object value)
+            => EscapeLineBreaks(EscapeSqlLiteral((string)value));
+
+        static string EscapeLineBreaks(string value)
+        {
+            if (value == null || value.IndexOfAny(LineBreakChars) == -1)
+                return $"'{value}'";
+
+            return ("('"
+                    + value
+                        .Replace("\r", "' || CHAR(13) || '")
+                        .Replace("\n", "' || CHAR(10) || '")
+                    + "')")
+                .Replace("'' || ", string.Empty)
+                .Replace(" || ''", string.Empty);
+        }
     }
 }
