@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" PrivateAssets="none" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" PrivateAssets="none" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" PrivateAssets="none" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
     <PackageReference Include="Npgsql" />
   </ItemGroup>
 

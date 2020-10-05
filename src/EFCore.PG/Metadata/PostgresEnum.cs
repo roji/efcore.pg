@@ -133,6 +133,18 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Metadata
                     .Where(a => a.Name.StartsWith(NpgsqlAnnotationNames.EnumPrefix, StringComparison.Ordinal))
                     .Select(a => new PostgresEnum(annotatable, a.Name));
 
+        public static void RemovePostgresEnum(
+            [NotNull] IMutableAnnotatable annotatable,
+            [CanBeNull] string schema,
+            [NotNull] string name)
+        {
+            Check.NotNull(annotatable, nameof(annotatable));
+            Check.NullButNotEmpty(schema, nameof(schema));
+            Check.NotEmpty(name, nameof(name));
+
+            annotatable.RemoveAnnotation(BuildAnnotationName(schema, name));
+        }
+
         /// <summary>
         /// The <see cref="Annotatable"/> that stores the enum.
         /// </summary>

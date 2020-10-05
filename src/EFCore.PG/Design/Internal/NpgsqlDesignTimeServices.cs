@@ -3,13 +3,14 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Diagnostics.Internal;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Scaffolding.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal;
+
+// #pragma warning disable EF1001 // EF Core internal API
 
 namespace Npgsql.EntityFrameworkCore.PostgreSQL.Design.Internal
 {
@@ -28,6 +29,8 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Design.Internal
                 .AddSingleton<IProviderConfigurationCodeGenerator, NpgsqlCodeGenerator>()
                 .AddSingleton<IAnnotationCodeGenerator, NpgsqlAnnotationCodeGenerator>()
                 .AddSingleton<ISqlGenerationHelper, NpgsqlSqlGenerationHelper>()
-                .AddSingleton<RelationalSqlGenerationHelperDependencies>();
+                .AddSingleton<RelationalSqlGenerationHelperDependencies>()
+                // .AddSingleton<IScaffoldingModelFactory, NpgsqlScaffoldingModelFactory>()
+                .AddSingleton<IModelCodeGenerator, NpgsqlModelCodeGenerator>();
     }
 }
