@@ -970,15 +970,133 @@ WHERE FLOOR(DATE_PART('second', n.""Duration""))::INT = 8");
 
         #endregion
 
-        #region Range
+        #region DateInterval
 
-        [ConditionalFact]
-        public void DateRange_Contains()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public async Task DateInterval_Length(bool async)
         {
             using var ctx = CreateContext();
 
-            var _ = ctx.NodaTimeTypes.Single(t => t.DateRange.Contains(new LocalDate(2018, 4, 21)));
-            Assert.Contains(@"n.""DateRange"" @> DATE '2018-04-21'", Sql);
+            await AssertQuery(
+                async,
+                ss => ss.Set<NodaTimeTypes>().Where(t => t.DateInterval.Length == 5),
+                entryCount: 1);
+
+            AssertSql(
+                @"SELECT n.""Id"", n.""DateInterval"", n.""DateRange"", n.""Duration"", n.""Instant"", n.""LocalDate"", n.""LocalDate2"", n.""LocalDateTime"", n.""LocalTime"", n.""Long"", n.""OffsetTime"", n.""Period"", n.""ZonedDateTime""
+FROM ""NodaTimeTypes"" AS n
+WHERE (upper(n.""DateInterval"") - lower(n.""DateInterval"")) = 5");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public async Task DateInterval_Contains_LocalDate(bool async)
+        {
+            using var ctx = CreateContext();
+
+            var dateInterval = new DateInterval(new(2018, 01, 01), new(2020, 12, 25));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<NodaTimeTypes>().Where(t => dateInterval.Contains(t.LocalDate)),
+                entryCount: 1);
+
+            AssertSql(
+                @"@__dateInterval_0='[2018-01-01, 2020-12-25]' (DbType = Object)
+
+SELECT n.""Id"", n.""DateInterval"", n.""DateRange"", n.""Duration"", n.""Instant"", n.""LocalDate"", n.""LocalDate2"", n.""LocalDateTime"", n.""LocalTime"", n.""Long"", n.""OffsetTime"", n.""Period"", n.""ZonedDateTime""
+FROM ""NodaTimeTypes"" AS n
+WHERE @__dateInterval_0 @> n.""LocalDate""");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public async Task DateInterval_Contains_DateInterval(bool async)
+        {
+            using var ctx = CreateContext();
+
+            var dateInterval = new DateInterval(new(2018, 4, 22), new(2018, 4, 24));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<NodaTimeTypes>().Where(t => t.DateInterval.Contains(dateInterval)),
+                entryCount: 1);
+
+            AssertSql(
+                @"@__dateInterval_0='[2018-04-22, 2018-04-24]' (DbType = Object)
+
+SELECT n.""Id"", n.""DateInterval"", n.""DateRange"", n.""Duration"", n.""Instant"", n.""LocalDate"", n.""LocalDate2"", n.""LocalDateTime"", n.""LocalTime"", n.""Long"", n.""OffsetTime"", n.""Period"", n.""ZonedDateTime""
+FROM ""NodaTimeTypes"" AS n
+WHERE n.""DateInterval"" @> @__dateInterval_0");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public async Task DateInterval_Intersection(bool async)
+        {
+            using var ctx = CreateContext();
+
+            var dateInterval = new DateInterval(new(2018, 4, 22), new(2018, 4, 26));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<NodaTimeTypes>().Where(t => t.DateInterval.Intersection(dateInterval) == new DateInterval(new(2018, 4, 22), new(2018, 4, 24))),
+                entryCount: 1);
+
+            AssertSql(
+                @"@__dateInterval_0='[2018-04-22, 2018-04-26]' (DbType = Object)
+
+SELECT n.""Id"", n.""DateInterval"", n.""DateRange"", n.""Duration"", n.""Instant"", n.""LocalDate"", n.""LocalDate2"", n.""LocalDateTime"", n.""LocalTime"", n.""Long"", n.""OffsetTime"", n.""Period"", n.""ZonedDateTime""
+FROM ""NodaTimeTypes"" AS n
+WHERE n.""DateInterval"" * @__dateInterval_0 = '[2018-04-22, 2018-04-24]'::daterange");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public async Task DateInterval_Union(bool async)
+        {
+            using var ctx = CreateContext();
+
+            var dateInterval = new DateInterval(new(2018, 4, 22), new(2018, 4, 26));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<NodaTimeTypes>().Where(t => t.DateInterval.Union(dateInterval) == new DateInterval(new(2018, 4, 20), new(2018, 4, 26))),
+                entryCount: 1);
+
+            AssertSql(
+                @"@__dateInterval_0='[2018-04-22, 2018-04-26]' (DbType = Object)
+
+SELECT n.""Id"", n.""DateInterval"", n.""DateRange"", n.""Duration"", n.""Instant"", n.""LocalDate"", n.""LocalDate2"", n.""LocalDateTime"", n.""LocalTime"", n.""Long"", n.""OffsetTime"", n.""Period"", n.""ZonedDateTime""
+FROM ""NodaTimeTypes"" AS n
+WHERE n.""DateInterval"" + @__dateInterval_0 = '[2018-04-20, 2018-04-26]'::daterange");
+        }
+
+        #endregion DateInterval
+
+        #region Range
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public async Task DateRange_Contains(bool async)
+        {
+            using var ctx = CreateContext();
+
+            var dateRange = new NpgsqlRange<LocalDate>(new(2018, 01, 01), new(2020, 12, 25));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<NodaTimeTypes>().Where(t => dateRange.Contains(t.LocalDate)),
+                entryCount: 1);
+
+            // var _ = ctx.NodaTimeTypes.Single(t => t.DateRange.Contains(new LocalDate(2018, 4, 21)));
+            AssertSql(
+                @"@__interval_0='[2018-01-01, 2020-12-25]' (DbType = Object)
+
+SELECT n.""Id"", n.""DateRange"", n.""Duration"", n.""Instant"", n.""LocalDate"", n.""LocalDate2"", n.""LocalDateTime"", n.""LocalTime"", n.""Long"", n.""OffsetTime"", n.""Period"", n.""ZonedDateTime""
+FROM ""NodaTimeTypes"" AS n
+WHERE @__interval_0 @> n.""LocalDate""");
         }
 
         #endregion Range
@@ -1254,6 +1372,7 @@ WHERE n.""Instant"" AT TIME ZONE 'UTC' = TIMESTAMP '2018-04-20T10:31:33.666'");
             public OffsetTime OffsetTime { get; set; }
             public Period Period { get; set; }
             public Duration Duration { get; set; }
+            public DateInterval DateInterval { get; set; }
             public NpgsqlRange<LocalDate> DateRange { get; set; }
             public long Long { get; set; }
             // ReSharper restore UnusedAutoPropertyAccessor.Global
@@ -1313,6 +1432,7 @@ WHERE n.""Instant"" AT TIME ZONE 'UTC' = TIMESTAMP '2018-04-20T10:31:33.666'");
                                 Assert.Equal(ee.OffsetTime, aa.OffsetTime);
                                 Assert.Equal(ee.Period, aa.Period);
                                 Assert.Equal(ee.Duration, aa.Duration);
+                                Assert.Equal(ee.DateInterval, aa.DateInterval);
                                 // Assert.Equal(ee.DateRange, aa.DateRange);
                                 Assert.Equal(ee.Long, aa.Long);
                             }
@@ -1363,7 +1483,8 @@ WHERE n.""Instant"" AT TIME ZONE 'UTC' = TIMESTAMP '2018-04-20T10:31:33.666'");
                         LocalTime = localDateTime.TimeOfDay,
                         OffsetTime = new OffsetTime(new LocalTime(10, 31, 33, 666), Offset.Zero),
                         Period = _defaultPeriod,
-                        DateRange = new NpgsqlRange<LocalDate>(localDateTime.Date, localDateTime.Date.PlusDays(5)),
+                        DateInterval = new(localDateTime.Date, localDateTime.Date.PlusDays(4)), // inclusive
+                        DateRange = new NpgsqlRange<LocalDate>(localDateTime.Date, localDateTime.Date.PlusDays(5)), // exclusive
                         Duration = duration,
                         Long = 1
                     }

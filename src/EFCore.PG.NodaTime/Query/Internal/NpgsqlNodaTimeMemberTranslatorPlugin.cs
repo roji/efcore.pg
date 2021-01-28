@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Query;
 
@@ -18,11 +19,13 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime.Query.Internal
     /// </remarks>
     public class NpgsqlNodaTimeMemberTranslatorPlugin : IMemberTranslatorPlugin
     {
-        public NpgsqlNodaTimeMemberTranslatorPlugin(ISqlExpressionFactory sqlExpressionFactory)
+        public NpgsqlNodaTimeMemberTranslatorPlugin(
+            IRelationalTypeMappingSource typeMappingSource,
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             Translators = new IMemberTranslator[]
             {
-                new NpgsqlNodaTimeMemberTranslator((NpgsqlSqlExpressionFactory)sqlExpressionFactory),
+                new NpgsqlNodaTimeMemberTranslator(typeMappingSource, (NpgsqlSqlExpressionFactory)sqlExpressionFactory),
             };
         }
 
@@ -31,15 +34,28 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime.Query.Internal
 
     public class NpgsqlNodaTimeMemberTranslator : IMemberTranslator
     {
-        private readonly NpgsqlSqlExpressionFactory _sqlExpressionFactory;
-
         private static readonly MemberInfo SystemClock_Instance =
             typeof(SystemClock).GetRuntimeProperty(nameof(SystemClock.Instance))!;
         private static readonly MemberInfo ZonedDateTime_LocalDateTime =
             typeof(ZonedDateTime).GetRuntimeProperty(nameof(ZonedDateTime.LocalDateTime))!;
 
-        public NpgsqlNodaTimeMemberTranslator(NpgsqlSqlExpressionFactory sqlExpressionFactory)
-            => _sqlExpressionFactory = sqlExpressionFactory;
+        private static readonly MemberInfo DateInterval_Start =
+            typeof(DateInterval).GetRuntimeProperty(nameof(DateInterval.Start))!;
+        private static readonly MemberInfo DateInterval_End =
+            typeof(DateInterval).GetRuntimeProperty(nameof(DateInterval.End))!;
+        private static readonly MemberInfo DateInterval_Length =
+            typeof(DateInterval).GetRuntimeProperty(nameof(DateInterval.Length))!;
+
+        private readonly NpgsqlSqlExpressionFactory _sqlExpressionFactory;
+        private readonly RelationalTypeMapping _dateTypeMapping;
+
+        public NpgsqlNodaTimeMemberTranslator(
+            IRelationalTypeMappingSource typeMappingSource,
+            NpgsqlSqlExpressionFactory sqlExpressionFactory)
+        {
+            _sqlExpressionFactory = sqlExpressionFactory;
+            _dateTypeMapping = typeMappingSource.FindMapping(typeof(LocalDate))!;
+        }
 
         private static readonly bool[][] TrueArrays =
         {
@@ -87,6 +103,11 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime.Query.Internal
                 return TranslateDuration(instance, member);
             }
 
+            if (declaringType == typeof(DateInterval))
+            {
+                return TranslateDateInterval(instance, member);
+            }
+
             return null;
         }
 
@@ -110,6 +131,47 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime.Query.Internal
                 nameof(Duration.Milliseconds) => null, // Too annoying, floating point and sub-millisecond handling
                 _ => null,
             };
+        }
+
+        private SqlExpression? TranslateDateInterval(SqlExpression instance, MemberInfo member)
+        {
+            // TODO: The following doesn't work if the range is exclusive (lower and upper!)
+            if (member == DateInterval_Start)
+            {
+                throw new NotImplementedException();
+                // return Lower();
+            }
+
+            if (member == DateInterval_End)
+            {
+                throw new NotImplementedException();
+                // return Upper();
+            }
+
+            if (member == DateInterval_Length)
+            {
+                return _sqlExpressionFactory.Subtract(Upper(), Lower());
+            }
+
+            return null;
+
+            SqlExpression Lower()
+                => _sqlExpressionFactory.Function(
+                    "lower",
+                    new[] { instance },
+                    nullable: true,
+                    argumentsPropagateNullability: TrueArrays[1],
+                    typeof(LocalDate),
+                    _dateTypeMapping);
+
+            SqlExpression Upper()
+                => _sqlExpressionFactory.Function(
+                    "upper",
+                    new[] { instance },
+                    nullable: true,
+                    argumentsPropagateNullability: TrueArrays[1],
+                    typeof(LocalDate),
+                    _dateTypeMapping);
         }
 
         private SqlExpression? TranslateDateTime(SqlExpression instance, MemberInfo member, Type returnType)
