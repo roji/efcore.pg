@@ -13,7 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Npgsql.NodaTime" />
+<!--    <PackageReference Include="Npgsql.NodaTime" />-->
+    <ProjectReference Include="/home/roji/projects/npgsql/src/Npgsql.NodaTime/Npgsql.NodaTime.csproj" />
   </ItemGroup>
 
   <ItemGroup>

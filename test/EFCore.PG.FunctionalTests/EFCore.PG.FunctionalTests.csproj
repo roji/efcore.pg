@@ -8,6 +8,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore.PG\EFCore.PG.csproj" />
     <ProjectReference Include="..\..\src\EFCore.PG.NTS\EFCore.PG.NTS.csproj" />
+
+    <ProjectReference Include="/home/roji/projects/npgsql/src/Npgsql/Npgsql.csproj" />
+    <ProjectReference Include="/home/roji/projects/npgsql/src/Npgsql.NetTopologySuite/Npgsql.NetTopologySuite.csproj" />
   </ItemGroup>
 
   <ItemGroup>

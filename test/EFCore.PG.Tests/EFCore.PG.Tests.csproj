@@ -13,6 +13,8 @@
     <ProjectReference Include="..\..\src\EFCore.PG\EFCore.PG.csproj" />
     <ProjectReference Include="..\..\src\EFCore.PG.NodaTime\EFCore.PG.NodaTime.csproj" />
     <ProjectReference Include="..\EFCore.PG.FunctionalTests\EFCore.PG.FunctionalTests.csproj" />
+
+    <ProjectReference Include="/home/roji/projects/npgsql/src/Npgsql/Npgsql.csproj" />
   </ItemGroup>
 
   <ItemGroup>
