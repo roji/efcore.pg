@@ -14,35 +14,6 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
 {
     #region timestamp
 
-    public class TimestampInstantMapping : NpgsqlTypeMapping
-    {
-        public TimestampInstantMapping() : base("timestamp", typeof(Instant), NpgsqlDbType.Timestamp) {}
-
-        protected TimestampInstantMapping(RelationalTypeMappingParameters parameters)
-            : base(parameters, NpgsqlDbType.Timestamp) {}
-
-        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-            => new TimestampInstantMapping(parameters);
-
-        public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new TimestampInstantMapping(Parameters.WithStoreTypeAndSize(storeType, size));
-
-        public override CoreTypeMapping Clone(ValueConverter? converter)
-            => new TimestampInstantMapping(Parameters.WithComposedConverter(converter));
-
-        protected override string GenerateNonNullSqlLiteral(object value)
-            => $"TIMESTAMP '{InstantPattern.ExtendedIso.Format((Instant)value)}'";
-
-        public override Expression GenerateCodeLiteral(object value)
-            => GenerateCodeLiteral((Instant)value);
-
-        internal static Expression GenerateCodeLiteral(Instant instant)
-            => Expression.Call(FromUnixTimeTicks, Expression.Constant(instant.ToUnixTimeTicks()));
-
-        private static readonly MethodInfo FromUnixTimeTicks
-            = typeof(Instant).GetRuntimeMethod(nameof(Instant.FromUnixTimeTicks), new[] { typeof(long) })!;
-    }
-
     public class TimestampLocalDateTimeMapping : NpgsqlTypeMapping
     {
         private static readonly ConstructorInfo ConstructorWithMinutes =
@@ -86,6 +57,36 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
         }
     }
 
+    // Used only with EnableLegacyTimestampBehavior
+    public class LegacyTimestampInstantMapping : NpgsqlTypeMapping
+    {
+        public LegacyTimestampInstantMapping() : base("timestamp", typeof(Instant), NpgsqlDbType.Timestamp) {}
+
+        protected LegacyTimestampInstantMapping(RelationalTypeMappingParameters parameters)
+            : base(parameters, NpgsqlDbType.Timestamp) {}
+
+        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+            => new LegacyTimestampInstantMapping(parameters);
+
+        public override RelationalTypeMapping Clone(string storeType, int? size)
+            => new LegacyTimestampInstantMapping(Parameters.WithStoreTypeAndSize(storeType, size));
+
+        public override CoreTypeMapping Clone(ValueConverter? converter)
+            => new LegacyTimestampInstantMapping(Parameters.WithComposedConverter(converter));
+
+        protected override string GenerateNonNullSqlLiteral(object value)
+            => $"TIMESTAMP '{InstantPattern.ExtendedIso.Format((Instant)value)}'";
+
+        public override Expression GenerateCodeLiteral(object value)
+            => GenerateCodeLiteral((Instant)value);
+
+        internal static Expression GenerateCodeLiteral(Instant instant)
+            => Expression.Call(FromUnixTimeTicks, Expression.Constant(instant.ToUnixTimeTicks()));
+
+        private static readonly MethodInfo FromUnixTimeTicks
+            = typeof(Instant).GetRuntimeMethod(nameof(Instant.FromUnixTimeTicks), new[] { typeof(long) })!;
+    }
+
     #endregion timestamp
 
     #region timestamptz
@@ -110,7 +111,7 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
             => $"TIMESTAMPTZ '{InstantPattern.ExtendedIso.Format((Instant)value)}'";
 
         public override Expression GenerateCodeLiteral(object value)
-            => TimestampInstantMapping.GenerateCodeLiteral((Instant)value);
+            => LegacyTimestampInstantMapping.GenerateCodeLiteral((Instant)value);
     }
 
     public class TimestampTzOffsetDateTimeMapping : NpgsqlTypeMapping
@@ -183,7 +184,7 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
 
             return Expression.New(
                 Constructor,
-                TimestampInstantMapping.GenerateCodeLiteral(zonedDateTime.ToInstant()),
+                LegacyTimestampInstantMapping.GenerateCodeLiteral(zonedDateTime.ToInstant()),
                 Expression.Call(
                     Expression.MakeMemberAccess(
                         null,

@@ -12,13 +12,22 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
 {
     public class NpgsqlNodaTimeTypeMappingSourcePlugin : IRelationalTypeMappingSourcePlugin
     {
+#if DEBUG
+        internal static bool LegacyTimestampBehavior;
+#else
+        static readonly bool LegacyTimestampBehavior;
+#endif
+
+        static NpgsqlNodaTimeTypeMappingSourcePlugin()
+            => LegacyTimestampBehavior = AppContext.TryGetSwitch("Npgsql.EnableLegacyTimestampBehavior", out var enabled) && enabled;
+
         public virtual ConcurrentDictionary<string, RelationalTypeMapping[]> StoreTypeMappings { get; }
         public virtual ConcurrentDictionary<Type, RelationalTypeMapping> ClrTypeMappings { get; }
 
         #region TypeMapping
 
-        private readonly TimestampInstantMapping _timestampInstant = new();
         private readonly TimestampLocalDateTimeMapping _timestampLocalDateTime = new();
+        private readonly LegacyTimestampInstantMapping _legacyTimestampInstant = new();
 
         private readonly TimestampTzInstantMapping _timestamptzInstant = new();
         private readonly TimestampTzZonedDateTimeMapping _timestamptzZonedDateTime = new();
@@ -45,7 +54,7 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
         public NpgsqlNodaTimeTypeMappingSourcePlugin(ISqlGenerationHelper sqlGenerationHelper)
         {
             _timestampLocalDateTimeRange = new NpgsqlRangeTypeMapping("tsrange", typeof(NpgsqlRange<LocalDateTime>), _timestampLocalDateTime, sqlGenerationHelper);
-            _timestampInstantRange = new NpgsqlRangeTypeMapping("tsrange", typeof(NpgsqlRange<Instant>), _timestampInstant, sqlGenerationHelper);
+            _timestampInstantRange = new NpgsqlRangeTypeMapping("tsrange", typeof(NpgsqlRange<Instant>), _legacyTimestampInstant, sqlGenerationHelper);
             _timestamptzInstantRange = new NpgsqlRangeTypeMapping("tstzrange", typeof(NpgsqlRange<Instant>), _timestamptzInstant, sqlGenerationHelper);
             _timestamptzZonedDateTimeRange = new NpgsqlRangeTypeMapping("tstzrange", typeof(NpgsqlRange<ZonedDateTime>), _timestamptzZonedDateTime, sqlGenerationHelper);
             _timestamptzOffsetDateTimeRange = new NpgsqlRangeTypeMapping("tstzrange", typeof(NpgsqlRange<OffsetDateTime>), _timestamptzOffsetDateTime, sqlGenerationHelper);
@@ -53,14 +62,14 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
 
             var storeTypeMappings = new Dictionary<string, RelationalTypeMapping[]>(StringComparer.OrdinalIgnoreCase)
             {
-                { "timestamp", new RelationalTypeMapping[] { _timestampInstant, _timestampLocalDateTime } },
-                { "timestamp without time zone", new RelationalTypeMapping[] { _timestampInstant, _timestampLocalDateTime } },
-                { "timestamptz", new RelationalTypeMapping[] { _timestamptzInstant, _timestamptzZonedDateTime, _timestamptzOffsetDateTime } },
+                {
+                    "timestamp without time zone", LegacyTimestampBehavior
+                        ? new RelationalTypeMapping[] { _legacyTimestampInstant, _timestampLocalDateTime }
+                        : new RelationalTypeMapping[] { _timestampLocalDateTime }
+                },
                 { "timestamp with time zone", new RelationalTypeMapping[] { _timestamptzInstant, _timestamptzZonedDateTime, _timestamptzOffsetDateTime } },
                 { "date", new RelationalTypeMapping[] { _date } },
-                { "time", new RelationalTypeMapping[] { _time } },
                 { "time without time zone", new RelationalTypeMapping[] { _time } },
-                { "timetz", new RelationalTypeMapping[] { _timetz } },
                 { "time with time zone", new RelationalTypeMapping[] { _timetz } },
                 { "interval", new RelationalTypeMapping[] { _periodInterval } },
 
@@ -69,9 +78,16 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
                 { "daterange", new RelationalTypeMapping[] { _dateRange} }
             };
 
+            // Set up aliases
+            storeTypeMappings["timestamp"] = storeTypeMappings["timestamp without time zone"];
+            storeTypeMappings["timestamptz"] = storeTypeMappings["timestamp with time zone"];
+            storeTypeMappings["time"] = storeTypeMappings["time without time zone"];
+            storeTypeMappings["timetz"] = storeTypeMappings["time with time zone"];
+
             var clrTypeMappings = new Dictionary<Type, RelationalTypeMapping>
             {
-                { typeof(Instant), _timestampInstant },
+                { typeof(Instant), LegacyTimestampBehavior ? _legacyTimestampInstant : _timestamptzInstant },
+
                 { typeof(LocalDateTime), _timestampLocalDateTime },
                 { typeof(ZonedDateTime), _timestamptzZonedDateTime },
                 { typeof(OffsetDateTime), _timestamptzOffsetDateTime },
