@@ -15,13 +15,20 @@
     <ProjectReference Include="..\EFCore.PG.FunctionalTests\EFCore.PG.FunctionalTests.csproj" />
 
     <ProjectReference Include="/home/roji/projects/npgsql/src/Npgsql/Npgsql.csproj" />
+    <ProjectReference Include="../../../efcore/src/EFCore/EFCore.csproj" />
+    <ProjectReference Include="../../../efcore/src/EFCore.Relational/EFCore.Relational.csproj" />
+    <ProjectReference Include="../../../efcore/src/EFCore.Design/EFCore.Design.csproj" />
+    <ProjectReference Include="../../../efcore/test/EFCore.Relational.Specification.Tests/EFCore.Relational.Specification.Tests.csproj" />
+
   </ItemGroup>
 
   <ItemGroup>
+    <!--
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Specification.Tests" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    -->
     <PackageReference Include="Microsoft.Extensions.Logging" />
   </ItemGroup>
 

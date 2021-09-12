@@ -24,7 +24,13 @@
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <ProjectReference Include="../../../efcore/src/EFCore/EFCore.csproj" />
+    <ProjectReference Include="../../../efcore/src/EFCore.Relational/EFCore.Relational.csproj" />
+    <ProjectReference Include="../../../efcore/src/EFCore.Abstractions/EFCore.Abstractions.csproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />
 
@@ -47,5 +53,5 @@
       <CustomToolNamespace>Npgsql.EntityFrameworkCore.PostgreSQL.Internal</CustomToolNamespace>
     </EmbeddedResource>
   </ItemGroup>
-  
+
 </Project>

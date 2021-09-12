@@ -11,12 +11,17 @@
 
     <ProjectReference Include="/home/roji/projects/npgsql/src/Npgsql/Npgsql.csproj" />
     <ProjectReference Include="/home/roji/projects/npgsql/src/Npgsql.NetTopologySuite/Npgsql.NetTopologySuite.csproj" />
+    <ProjectReference Include="..\..\../efcore/src/EFCore/EFCore.csproj" />
+    <ProjectReference Include="..\..\../efcore/src/EFCore.Relational/EFCore.Relational.csproj" />
+    <ProjectReference Include="..\..\../efcore/test/EFCore.Relational.Specification.Tests/EFCore.Relational.Specification.Tests.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <!--
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Specification.Tests" />
+    -->
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
   </ItemGroup>
