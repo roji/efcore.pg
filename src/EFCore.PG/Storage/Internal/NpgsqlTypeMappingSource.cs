@@ -155,7 +155,6 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
             _sqlGenerationHelper = Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
 
             // Initialize some mappings which depend on other mappings
-            // TODO: timestamp changes
             _int4range = new NpgsqlRangeTypeMapping("int4range", typeof(NpgsqlRange<int>),      _int4,        sqlGenerationHelper);
             _int8range = new NpgsqlRangeTypeMapping("int8range", typeof(NpgsqlRange<long>),     _int8,        sqlGenerationHelper);
             _numrange  = new NpgsqlRangeTypeMapping("numrange",  typeof(NpgsqlRange<decimal>),  _numeric,     sqlGenerationHelper);

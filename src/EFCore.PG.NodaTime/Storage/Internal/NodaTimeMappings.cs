@@ -78,13 +78,7 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
             => $"TIMESTAMP '{InstantPattern.ExtendedIso.Format((Instant)value)}'";
 
         public override Expression GenerateCodeLiteral(object value)
-            => GenerateCodeLiteral((Instant)value);
-
-        internal static Expression GenerateCodeLiteral(Instant instant)
-            => Expression.Call(FromUnixTimeTicks, Expression.Constant(instant.ToUnixTimeTicks()));
-
-        private static readonly MethodInfo FromUnixTimeTicks
-            = typeof(Instant).GetRuntimeMethod(nameof(Instant.FromUnixTimeTicks), new[] { typeof(long) })!;
+            => TimestampTzInstantMapping.GenerateCodeLiteral((Instant)value);
     }
 
     #endregion timestamp
@@ -110,8 +104,14 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
         protected override string GenerateNonNullSqlLiteral(object value)
             => $"TIMESTAMPTZ '{InstantPattern.ExtendedIso.Format((Instant)value)}'";
 
+        internal static Expression GenerateCodeLiteral(Instant instant)
+            => Expression.Call(_fromUnixTimeTicks, Expression.Constant(instant.ToUnixTimeTicks()));
+
         public override Expression GenerateCodeLiteral(object value)
-            => LegacyTimestampInstantMapping.GenerateCodeLiteral((Instant)value);
+            => GenerateCodeLiteral((Instant)value);
+
+        private static readonly MethodInfo _fromUnixTimeTicks
+            = typeof(Instant).GetRuntimeMethod(nameof(Instant.FromUnixTimeTicks), new[] { typeof(long) })!;
     }
 
     public class TimestampTzOffsetDateTimeMapping : NpgsqlTypeMapping
@@ -184,7 +184,7 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal
 
             return Expression.New(
                 Constructor,
-                LegacyTimestampInstantMapping.GenerateCodeLiteral(zonedDateTime.ToInstant()),
+                TimestampTzInstantMapping.GenerateCodeLiteral(zonedDateTime.ToInstant()),
                 Expression.Call(
                     Expression.MakeMemberAccess(
                         null,
