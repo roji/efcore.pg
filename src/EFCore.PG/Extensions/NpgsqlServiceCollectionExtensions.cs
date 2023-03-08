@@ -120,6 +120,7 @@ public static class NpgsqlServiceCollectionExtensions
             .TryAdd<ISingletonOptions, INpgsqlSingletonOptions>(p => p.GetRequiredService<INpgsqlSingletonOptions>())
             .TryAdd<IValueConverterSelector, NpgsqlValueConverterSelector>()
             .TryAdd<IQueryCompilationContextFactory, NpgsqlQueryCompilationContextFactory>()
+            .TryAdd<IQueryTranslationPreprocessorFactory, NpgsqlQueryTranslationPreprocessorFactory>()
             .TryAddProviderSpecificServices(
                 b => b
                     .TryAddSingleton<INpgsqlValueGeneratorCache, NpgsqlValueGeneratorCache>()
