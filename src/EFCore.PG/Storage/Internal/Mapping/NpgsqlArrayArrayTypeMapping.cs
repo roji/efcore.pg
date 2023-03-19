@@ -20,31 +20,31 @@ public class NpgsqlArrayArrayTypeMapping : NpgsqlArrayTypeMapping
     /// Creates the default array mapping (i.e. for the single-dimensional CLR array type)
     /// </summary>
     /// <param name="storeType">The database type to map.</param>
-    /// <param name="elementMapping">The element type mapping.</param>
-    public NpgsqlArrayArrayTypeMapping(string storeType, RelationalTypeMapping elementMapping)
-        : this(storeType, elementMapping, elementMapping.ClrType.MakeArrayType()) {}
+    /// <param name="elementTypeMapping"> The element type mapping.</param>
+    public NpgsqlArrayArrayTypeMapping(string storeType, RelationalTypeMapping elementTypeMapping)
+        : this(storeType, elementTypeMapping, elementTypeMapping.ClrType.MakeArrayType()) {}
 
     /// <summary>
     /// Creates the default array mapping (i.e. for the single-dimensional CLR array type)
     /// </summary>
     /// <param name="arrayType">The array type to map.</param>
-    /// <param name="elementMapping">The element type mapping.</param>
-    public NpgsqlArrayArrayTypeMapping(Type arrayType, RelationalTypeMapping elementMapping)
-        : this(elementMapping.StoreType + "[]", elementMapping, arrayType) {}
+    /// <param name="elementTypeMapping"> The element type mapping.</param>
+    public NpgsqlArrayArrayTypeMapping(Type arrayType, RelationalTypeMapping elementTypeMapping)
+        : this(elementTypeMapping.StoreType + "[]", elementTypeMapping, arrayType) {}
 
-    private NpgsqlArrayArrayTypeMapping(string storeType, RelationalTypeMapping elementMapping, Type arrayType)
-        : this(CreateParameters(storeType, elementMapping, arrayType), elementMapping)
+    private NpgsqlArrayArrayTypeMapping(string storeType, RelationalTypeMapping elementTypeMapping, Type arrayType)
+        : this(CreateParameters(storeType, elementTypeMapping, arrayType))
     {
     }
 
     private static RelationalTypeMappingParameters CreateParameters(
         string storeType,
-        RelationalTypeMapping elementMapping,
+        RelationalTypeMapping elementTypeMapping,
         Type arrayType)
     {
         ValueConverter? converter = null;
 
-        if (elementMapping.Converter is { } elementConverter)
+        if (elementTypeMapping.Converter is { } elementConverter)
         {
             var isNullable = arrayType.GetElementType()!.IsNullableValueType();
 
@@ -64,7 +64,11 @@ public class NpgsqlArrayArrayTypeMapping : NpgsqlArrayTypeMapping
         }
 
         return new RelationalTypeMappingParameters(
-            new CoreTypeMappingParameters(arrayType, converter, CreateComparer(elementMapping, arrayType)),
+            new CoreTypeMappingParameters(
+                arrayType,
+                converter,
+                CreateComparer(elementTypeMapping, arrayType),
+                elementTypeMapping: elementTypeMapping),
             storeType);
     }
 
@@ -74,13 +78,9 @@ public class NpgsqlArrayArrayTypeMapping : NpgsqlArrayTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected NpgsqlArrayArrayTypeMapping(
-        RelationalTypeMappingParameters parameters,
-        RelationalTypeMapping elementMapping,
-        bool? isElementNullable = null)
+    protected NpgsqlArrayArrayTypeMapping(RelationalTypeMappingParameters parameters, bool? isElementNullable = null)
         : base(
             parameters,
-            elementMapping,
             CalculateElementNullability(
                 // Note that the ClrType on elementMapping has been unwrapped for nullability, so we consult the array's CLR type instead
                 parameters.CoreParameters.ClrType.GetElementType()
@@ -100,7 +100,7 @@ public class NpgsqlArrayArrayTypeMapping : NpgsqlArrayTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override NpgsqlArrayTypeMapping MakeNonNullable()
-        => new NpgsqlArrayArrayTypeMapping(Parameters, ElementMapping, isElementNullable: false);
+        => new NpgsqlArrayArrayTypeMapping(Parameters, isElementNullable: false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -109,7 +109,7 @@ public class NpgsqlArrayArrayTypeMapping : NpgsqlArrayTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters, RelationalTypeMapping elementMapping)
-        => new NpgsqlArrayArrayTypeMapping(parameters, elementMapping);
+        => new NpgsqlArrayArrayTypeMapping(parameters.WithCoreParameters(parameters.CoreParameters.WithElementTypeMapping(elementMapping)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -135,7 +135,7 @@ public class NpgsqlArrayArrayTypeMapping : NpgsqlArrayTypeMapping
             var listElementType = newType.GetGenericArguments()[0];
 
             return listElementType == elementType
-                ? new NpgsqlArrayListTypeMapping(newType, ElementMapping)
+                ? new NpgsqlArrayListTypeMapping(newType, ElementTypeMapping)
                 : throw new ArgumentException(
                     "Mismatch in array element CLR types when converting a type mapping: " +
                     $"{listElementType} and {elementType.Name}");

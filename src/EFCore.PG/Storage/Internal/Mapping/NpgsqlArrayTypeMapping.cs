@@ -14,17 +14,12 @@ namespace Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
 public abstract class NpgsqlArrayTypeMapping : RelationalTypeMapping
 {
     /// <summary>
-    /// The relational type mapping used to initialize the array mapping.
-    /// </summary>
-    public virtual RelationalTypeMapping ElementMapping { get; }
-
-    /// <summary>
     /// The database type used by Npgsql.
     /// </summary>
     public virtual NpgsqlDbType? NpgsqlDbType { get; }
 
     /// <summary>
-    /// Whether the array's element is nullable. This is required since <see cref="Type"/> and <see cref="ElementMapping"/> do not
+    /// Whether the array's element is nullable. This is required since <see cref="Type"/> and <see cref="ElementTypeMapping"/> do not
     /// contain nullable reference type information.
     /// </summary>
     public virtual bool IsElementNullable { get; }
@@ -35,22 +30,36 @@ public abstract class NpgsqlArrayTypeMapping : RelationalTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected NpgsqlArrayTypeMapping(
-        RelationalTypeMappingParameters parameters, RelationalTypeMapping elementMapping, bool isElementNullable)
+    protected NpgsqlArrayTypeMapping(RelationalTypeMappingParameters parameters, bool isElementNullable)
         : base(parameters)
     {
-        ElementMapping = elementMapping;
         IsElementNullable = isElementNullable;
 
         // If the element mapping has an NpgsqlDbType or DbType, set our own NpgsqlDbType as an array of that.
         // Otherwise let the ADO.NET layer infer the PostgreSQL type. We can't always let it infer, otherwise
         // when given a byte[] it will infer byte (but we want smallint[])
         NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Array |
-            (elementMapping is INpgsqlTypeMapping elementNpgsqlTypeMapping
+            (ElementTypeMapping is INpgsqlTypeMapping elementNpgsqlTypeMapping
                 ? elementNpgsqlTypeMapping.NpgsqlDbType
-                : elementMapping.DbType.HasValue
-                    ? new NpgsqlParameter { DbType = elementMapping.DbType.Value }.NpgsqlDbType
+                : ElementTypeMapping.DbType.HasValue
+                    ? new NpgsqlParameter { DbType = ElementTypeMapping.DbType.Value }.NpgsqlDbType
                     : default(NpgsqlDbType?));
+    }
+
+    /// <summary>
+    ///     The element's type mapping.
+    /// </summary>
+    public override RelationalTypeMapping ElementTypeMapping
+    {
+        get
+        {
+            var elementTypeMapping = base.ElementTypeMapping;
+            Check.DebugAssert(elementTypeMapping is not null,
+                "NpgsqlArrayTypeMapping without an element type mapping");
+            Check.DebugAssert(elementTypeMapping is RelationalTypeMapping,
+                "NpgsqlArrayTypeMapping with a non-relational element type mapping");
+            return (RelationalTypeMapping)elementTypeMapping;
+        }
     }
 
     /// <summary>
@@ -74,7 +83,7 @@ public abstract class NpgsqlArrayTypeMapping : RelationalTypeMapping
         {
             return Clone(
                 Parameters.WithComposedConverter(converter),
-                (RelationalTypeMapping)ElementMapping.Clone(converter is INpgsqlArrayConverter arrayConverter
+                (RelationalTypeMapping)ElementTypeMapping.Clone(converter is INpgsqlArrayConverter arrayConverter
                     ? arrayConverter.ElementConverter
                     : null));
         }
@@ -99,7 +108,7 @@ public abstract class NpgsqlArrayTypeMapping : RelationalTypeMapping
     /// </summary>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
     {
-        var elementMapping = ElementMapping;
+        var elementMapping = ElementTypeMapping;
 
         // Apply precision, scale and size to the element mapping, not to the array
         if (parameters.Size is not null)
@@ -155,7 +164,7 @@ public abstract class NpgsqlArrayTypeMapping : RelationalTypeMapping
         sb.Append("ARRAY[");
         for (var i = 0; i < list.Count; i++)
         {
-            sb.Append(ElementMapping.GenerateProviderValueSqlLiteral(list[i]));
+            sb.Append(ElementTypeMapping.GenerateProviderValueSqlLiteral(list[i]));
             if (i < list.Count - 1)
             {
                 sb.Append(",");
@@ -163,7 +172,7 @@ public abstract class NpgsqlArrayTypeMapping : RelationalTypeMapping
         }
 
         sb.Append("]::");
-        sb.Append(ElementMapping.StoreType);
+        sb.Append(ElementTypeMapping.StoreType);
         sb.Append("[]");
         return sb.ToString();
     }
