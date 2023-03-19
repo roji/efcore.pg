@@ -68,7 +68,7 @@ public class NpgsqlTypeMappingSourceTest
         Assert.Equal("varchar(32)[]", arrayMapping.StoreType);
         Assert.Null(arrayMapping.Size);
 
-        var elementMapping = arrayMapping.ElementMapping;
+        var elementMapping = arrayMapping.ElementTypeMapping;
         Assert.Same(typeof(string), elementMapping.ClrType);
         Assert.Equal("varchar(32)", elementMapping.StoreType);
         Assert.Equal(32, elementMapping.Size);
@@ -90,7 +90,7 @@ public class NpgsqlTypeMappingSourceTest
         Assert.Same(typeof(DateTime[]), arrayMapping.ClrType);
         Assert.Equal("timestamp(5) without time zone[]", arrayMapping.StoreType);
 
-        var elementMapping = arrayMapping.ElementMapping;
+        var elementMapping = arrayMapping.ElementTypeMapping;
         Assert.Same(typeof(DateTime), elementMapping.ClrType);
         Assert.Equal("timestamp(5) without time zone", elementMapping.StoreType);
     }
@@ -210,7 +210,7 @@ public class NpgsqlTypeMappingSourceTest
         Assert.Equal("ltree[]", arrayMapping.StoreType);
         Assert.Same(expectedType, arrayMapping.ClrType);
 
-        var elementMapping = arrayMapping.ElementMapping;
+        var elementMapping = arrayMapping.ElementTypeMapping;
         Assert.NotNull(elementMapping);
         Assert.Equal("ltree", elementMapping.StoreType);
         Assert.Same(typeof(LTree), elementMapping.ClrType);

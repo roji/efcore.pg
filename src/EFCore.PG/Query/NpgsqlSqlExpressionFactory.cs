@@ -605,7 +605,7 @@ public class NpgsqlSqlExpressionFactory : SqlExpressionFactory
                 ? unary.Operand.TypeMapping
                 : null)
             // If we couldn't find a type mapping on the item, try inferring it from the array
-            ?? arrayMapping?.ElementMapping
+            ?? arrayMapping?.ElementTypeMapping
             ?? _typeMappingSource.FindMapping(itemExpression.Type, Dependencies.Model);
 
         if (itemMapping is null)
@@ -662,7 +662,7 @@ public class NpgsqlSqlExpressionFactory : SqlExpressionFactory
             postgresArrayIndexExpression.Type,
             // If the array has a type mapping (i.e. column), prefer that just like we prefer column mappings in general
             postgresArrayIndexExpression.Array.TypeMapping is NpgsqlArrayTypeMapping arrayMapping
-                ? arrayMapping.ElementMapping
+                ? arrayMapping.ElementTypeMapping
                 : typeMapping
                 ?? _typeMappingSource.FindMapping(postgresArrayIndexExpression.Type, Dependencies.Model));
     }
@@ -970,7 +970,7 @@ public class NpgsqlSqlExpressionFactory : SqlExpressionFactory
                 return postgresNewArrayExpression;
             }
 
-            elementTypeMapping = arrayTypeMapping.ElementMapping;
+            elementTypeMapping = arrayTypeMapping.ElementTypeMapping;
         }
         else
         {

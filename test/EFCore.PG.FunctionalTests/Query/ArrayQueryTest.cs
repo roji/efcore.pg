@@ -13,7 +13,7 @@ public abstract class ArrayQueryTest<TFixture> : QueryTestBase<TFixture>
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     #region Roundtrip

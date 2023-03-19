@@ -47,7 +47,7 @@ public class NpgsqlTypeMappingSource : RelationalTypeMappingSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual ConcurrentDictionary<string, RelationalTypeMapping[]> StoreTypeMappings { get; }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -684,7 +684,7 @@ public class NpgsqlTypeMappingSource : RelationalTypeMappingSource
 
             // If no mapping was found for the element, there's no mapping for the array.
             // Also, arrays of arrays aren't supported (as opposed to multidimensional arrays) by PostgreSQL
-            if (elementMapping is null || elementMapping is NpgsqlArrayTypeMapping)
+            if (elementMapping is null or NpgsqlArrayTypeMapping)
             {
                 return null;
             }
@@ -824,11 +824,16 @@ public class NpgsqlTypeMappingSource : RelationalTypeMappingSource
     }
 
     /// <summary>
-    /// Finds the mapping for a container given its CLR type and its containee's type mapping; this is currently used to infer type
-    /// mappings for ranges and multiranges from their values.
+    /// Finds the mapping for a container given its CLR type and its containee's type mapping; this is used when inferring type mappings
+    /// for arrays and ranges/multiranges.
     /// </summary>
     public virtual RelationalTypeMapping? FindContainerMapping(Type containerClrType, RelationalTypeMapping containeeTypeMapping)
     {
+        if (containerClrType.TryGetElementType(out _))
+        {
+            return FindMapping(containerClrType, containeeTypeMapping.StoreType + "[]");
+        }
+
         if (containerClrType.TryGetRangeSubtype(out var subtypeType))
         {
             return _rangeTypeMappings.TryGetValue(subtypeType, out var candidateMappings)
@@ -951,7 +956,7 @@ public class NpgsqlTypeMappingSource : RelationalTypeMappingSource
 
         // For arrays over reference types, the CLR type doesn't convey nullability (unlike with arrays over value types).
         // We decode NRT annotations here to return the correct type mapping.
-        if (mapping is NpgsqlArrayTypeMapping { ElementMapping.ClrType.IsValueType: false } arrayMapping
+        if (mapping is NpgsqlArrayTypeMapping { ElementTypeMapping.ClrType.IsValueType: false } arrayMapping
             && !property.IsShadowProperty())
         {
             var nullabilityInfo =
