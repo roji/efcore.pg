@@ -171,6 +171,53 @@ public class NpgsqlQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         return base.TranslateAny(source, predicate);
     }
 
+    /// <inheritdoc />
+    protected override ShapedQueryExpression? TranslateAppend(ShapedQueryExpression source, Expression element)
+    {
+        // Simplify x.Array.Append(8) => x.Array || 8 instead of the default relational set operation implementation
+        if (source.QueryExpression is SelectExpression
+            {
+                Tables: [PostgresUnnestExpression { Array: var array } unnest],
+                GroupBy: [],
+                Having: null,
+                IsDistinct: false,
+                Limit: null,
+                Offset: null,
+                Orderings: []
+            } select1)
+        {
+            if (TranslateExpression(element) is not { } translatedElement)
+            {
+                return null;
+            }
+
+            // TODO: Allow peeking into projection mapping
+            var clonedSelect = select1.Clone();
+            clonedSelect.ApplyProjection();
+
+            Check.DebugAssert(clonedSelect.Projection.Count == 1, "Multiple projections out of unnest");
+            var elementClrType = clonedSelect.Projection[0].Expression.Type;
+            var tableTypeMapping = clonedSelect.Projection[0].Expression.TypeMapping;
+            var elementTypeMapping = translatedElement.TypeMapping;
+
+            Check.DebugAssert(tableTypeMapping is not null || elementTypeMapping is not null,
+                "Append with no type mapping on either side (operation should be client-evaluated over parameters/constants");
+            if (tableTypeMapping is null)
+            {
+                RegisteredInferredTableMapping(unnest, elementTypeMapping!);
+            }
+            // TODO: Conflicting type mappings from both sides?
+
+            var inferredTypeMapping = tableTypeMapping ?? elementTypeMapping;
+            var unnestExpression = new PostgresUnnestExpression(_sqlExpressionFactory.Add(array, translatedElement), "value");
+            var selectExpression = new SelectExpression(elementClrType, inferredTypeMapping, unnestExpression, "value");
+
+            return source.Update(selectExpression, source.ShaperExpression);
+        }
+
+        return base.TranslateAppend(source, element);
+    }
+
     protected override ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate)
     {
         // TODO: Does json_array_length pass through here? Most probably not, since it's not mapped with ElementTypeMapping...
