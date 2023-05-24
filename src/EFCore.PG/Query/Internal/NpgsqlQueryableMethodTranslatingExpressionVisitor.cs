@@ -89,6 +89,9 @@ public class NpgsqlQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         // a special case for geometry collections, where we use
         SelectExpression selectExpression;
 
+        // TODO: This is a temporary CLR type-based check; when we have proper metadata to determine if the element is nullable, use it here
+        var isColumnNullable = elementClrType.IsNullableType();
+
         // TODO: Parameters have no type mapping. We can check whether the expression type is one of the NTS geometry collection types,
         // though in a perfect world we'd actually infer this. In other words, when the type mapping of the element is inferred further on,
         // we'd replace the unnest expression with ST_Dump. We could even have a special expression type which means "indeterminate, must be
@@ -106,13 +109,12 @@ public class NpgsqlQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             // This is necessary since when the column name isn't explicitly specified, it is automatically identical to the table alias
             // (f above); since the table alias may get uniquified by EF, this would break queries.
 
-            // TODO: When we have metadata to determine if the element is nullable, pass that here to SelectExpression
             // Note also that with PostgreSQL unnest, the output ordering is guaranteed to be the same as the input array, so we don't need
             // to add ordering like in most other providers (https://www.postgresql.org/docs/current/functions-array.html)
             // We also don't need to apply any casts or typing, since PG arrays are fully typed (unlike e.g. a JSON string).
             selectExpression = new SelectExpression(
                 new PostgresUnnestExpression(tableAlias, sqlExpression, "value"),
-                "value", elementClrType, elementTypeMapping, isColumnNullable: null);
+                "value", elementClrType, elementTypeMapping, isColumnNullable);
         }
 
         Expression shaperExpression = new ProjectionBindingExpression(
@@ -258,93 +260,7 @@ public class NpgsqlQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                         _sqlExpressionFactory.Constant(0)));
             }
 
-            var translatedPredicate = TranslateLambdaExpression(source, predicate);
-            if (translatedPredicate is null)
-            {
-                return null;
-            }
-
-            // Simplify Contains / array.Any(i => i == x)
-            // Note that most other simplifications here convert ValuesExpression to unnest over array constructor, but we avoid doing that
-            // here, since the relational translation for ValuesExpression is better.
-            if (sourceTable is PostgresUnnestExpression
-                && translatedPredicate is SqlBinaryExpression
-                {
-                    OperatorType: ExpressionType.Equal,
-                    Left: var left,
-                    Right: var right
-                })
-            {
-                var item =
-                    left is ColumnExpression leftColumn && ReferenceEquals(leftColumn.Table, sourceTable)
-                        ? right
-                        : right is ColumnExpression rightColumn && ReferenceEquals(rightColumn.Table, sourceTable)
-                            ? left
-                            : null;
-
-                if (item is not null)
-                {
-                    var array = GetArray(sourceTable);
-
-                    // When the array is a column, we translate Contains to array @> ARRAY[item]. GIN indexes on array are used, but null
-                    // semantics is impossible without preventing index use.
-                    switch (array)
-                    {
-                        case ColumnExpression:
-                            if (item is SqlConstantExpression { Value: null })
-                            {
-                                // We special-case null constant item and use array_position instead, since it does
-                                // nulls correctly (but doesn't use indexes)
-                                // TODO: once lambda-based caching is implemented, move this to NpgsqlSqlNullabilityProcessor
-                                // (https://github.com/dotnet/efcore/issues/17598) and do for parameters as well.
-                                return BuildSimplifiedShapedQuery(
-                                    source,
-                                    _sqlExpressionFactory.IsNotNull(
-                                        _sqlExpressionFactory.Function(
-                                            "array_position",
-                                            new[] { array, item },
-                                            nullable: true,
-                                            argumentsPropagateNullability: FalseArrays[2],
-                                            typeof(int))));
-                            }
-
-                            return BuildSimplifiedShapedQuery(
-                                source,
-                                _sqlExpressionFactory.Contains(
-                                    array,
-                                    _sqlExpressionFactory.NewArrayOrConstant(new[] { item }, array.Type)));
-
-                        // Don't do anything PG-specific for constant arrays since the general EF Core mechanism is fine
-                        // for that case: item IN (1, 2, 3).
-                        // After https://github.com/aspnet/EntityFrameworkCore/issues/16375 is done we may not need the
-                        // check any more.
-                        case SqlConstantExpression:
-                            return null;
-
-                        // Similar to ParameterExpression below, but when a bare subquery is present inside ANY(), PostgreSQL just compares
-                        // against each of its resulting rows (just like IN). To "extract" the array result of the scalar subquery, we need
-                        // to add an explicit cast (see #1803).
-                        case ScalarSubqueryExpression subqueryExpression:
-                            return BuildSimplifiedShapedQuery(
-                                source,
-                                _sqlExpressionFactory.Any(
-                                    item,
-                                    _sqlExpressionFactory.Convert(
-                                        subqueryExpression, subqueryExpression.Type, subqueryExpression.TypeMapping),
-                                    PostgresAnyOperatorType.Equal));
-
-                        // For ParameterExpression, and for all other cases - e.g. array returned from some function -
-                        // translate to e.SomeText = ANY (@p). This is superior to the general solution which will expand
-                        // parameters to constants, since non-PG SQL does not support arrays.
-                        // Note that this will allow indexes on the item to be used.
-                        default:
-                            return BuildSimplifiedShapedQuery(
-                                source, _sqlExpressionFactory.Any(item, array, PostgresAnyOperatorType.Equal));
-                    }
-                }
-            }
-
-            switch (translatedPredicate)
+            switch (TranslateLambdaExpression(source, predicate))
             {
                 // Pattern match: new[] { "a", "b", "c" }.Any(p => EF.Functions.Like(e.SomeText, p))
                 // Translation: s.SomeText LIKE ANY (ARRAY['a','b','c'])
@@ -530,6 +446,94 @@ public class NpgsqlQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         }
 
         return base.TranslateAny(source, predicate);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
+    {
+        // Specialized PostgreSQL translations for Contains, e.g. 'item = ANY (@arrayParam)' for parameter collection,
+        // 'col @> item' for column collection.
+        if (source.QueryExpression is SelectExpression
+            {
+                Tables: [PostgresUnnestExpression sourceTable],
+                Predicate: null,
+                GroupBy: [],
+                Having: null,
+                IsDistinct: false,
+                Limit: null,
+                Offset: null
+            })
+        {
+            if (TranslateExpression(item) is not SqlExpression translatedItem)
+            {
+                return base.TranslateContains(source, item);
+            }
+
+            var array = GetArray(sourceTable);
+
+            // When the array is a column, we translate Contains to array @> ARRAY[item]. GIN indexes on array are used, but null
+            // semantics is impossible without preventing index use.
+            switch (array)
+            {
+                case ColumnExpression:
+                    if (item is SqlConstantExpression { Value: null })
+                    {
+                        // We special-case null constant item and use array_position instead, since it does
+                        // nulls correctly (but doesn't use indexes)
+                        // TODO: once lambda-based caching is implemented, move this to NpgsqlSqlNullabilityProcessor
+                        // (https://github.com/dotnet/efcore/issues/17598) and do for parameters as well.
+                        return BuildSimplifiedShapedQuery(
+                            source,
+                            _sqlExpressionFactory.IsNotNull(
+                                _sqlExpressionFactory.Function(
+                                    "array_position",
+                                    new[] { array, translatedItem },
+                                    nullable: true,
+                                    argumentsPropagateNullability: FalseArrays[2],
+                                    typeof(int))));
+                    }
+
+                    return BuildSimplifiedShapedQuery(
+                        source,
+                        _sqlExpressionFactory.Contains(
+                            array,
+                            _sqlExpressionFactory.NewArrayOrConstant(new[] { translatedItem }, array.Type)));
+
+                // Don't do anything PG-specific for constant arrays since the general EF Core mechanism is fine
+                // for that case: item IN (1, 2, 3).
+                // After https://github.com/aspnet/EntityFrameworkCore/issues/16375 is done we may not need the
+                // check any more.
+                case SqlConstantExpression:
+                    return base.TranslateContains(source, item);
+
+                // Similar to ParameterExpression below, but when a bare subquery is present inside ANY(), PostgreSQL just compares
+                // against each of its resulting rows (just like IN). To "extract" the array result of the scalar subquery, we need
+                // to add an explicit cast (see #1803).
+                case ScalarSubqueryExpression subqueryExpression:
+                    return BuildSimplifiedShapedQuery(
+                        source,
+                        _sqlExpressionFactory.Any(
+                            translatedItem,
+                            _sqlExpressionFactory.Convert(
+                                subqueryExpression, subqueryExpression.Type, subqueryExpression.TypeMapping),
+                            PostgresAnyOperatorType.Equal));
+
+                // For ParameterExpression, and for all other cases - e.g. array returned from some function -
+                // translate to e.SomeText = ANY (@p). This is superior to the general solution which will expand
+                // parameters to constants, since non-PG SQL does not support arrays.
+                // Note that this will allow indexes on the item to be used.
+                default:
+                    return BuildSimplifiedShapedQuery(
+                        source, _sqlExpressionFactory.Any(translatedItem, array, PostgresAnyOperatorType.Equal));
+            }
+        }
+
+        return base.TranslateContains(source, item);
     }
 
     /// <summary>
