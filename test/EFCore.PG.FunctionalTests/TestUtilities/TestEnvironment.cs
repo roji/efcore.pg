@@ -15,15 +15,15 @@ public static class TestEnvironment
             .AddJsonFile("config.test.json", optional: true)
             .AddEnvironmentVariables();
 
-        Config = configBuilder.Build()
-            .GetSection("Test:Npgsql");
+        // Config = configBuilder.Build()
+            // .GetSection("Test:Npgsql");
 
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
     }
 
     private const string DefaultConnectionString = "Server=localhost;Username=npgsql_tests;Password=npgsql_tests;Port=5432";
 
-    public static string DefaultConnection => Config["DefaultConnection"] ?? DefaultConnectionString;
+    public static string DefaultConnection => DefaultConnectionString;
 
     private static Version _postgresVersion;
 

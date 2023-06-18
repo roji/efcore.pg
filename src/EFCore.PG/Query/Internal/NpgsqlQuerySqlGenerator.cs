@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -592,9 +593,12 @@ public class NpgsqlQuerySqlGenerator : QuerySqlGenerator
 
             // Bitwise complement on networking types
             case ExpressionType.Not when
-                sqlUnaryExpression.Operand.TypeMapping.ClrType == typeof(IPAddress)
-                || sqlUnaryExpression.Operand.TypeMapping.ClrType == typeof((IPAddress, int))
-                || sqlUnaryExpression.Operand.TypeMapping.ClrType == typeof(PhysicalAddress):
+                sqlUnaryExpression.Operand.TypeMapping.ClrType is var clrType
+                && (
+                    clrType == typeof(IPAddress)
+                    || clrType == typeof((IPAddress, int))
+                    || clrType == typeof(PhysicalAddress)
+                    || clrType == typeof(BitArray)):
                 Sql.Append("~");
                 Visit(sqlUnaryExpression.Operand);
                 return sqlUnaryExpression;
