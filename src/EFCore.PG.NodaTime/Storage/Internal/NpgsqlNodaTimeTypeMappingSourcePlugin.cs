@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
 
 // ReSharper disable once CheckNamespace
@@ -19,6 +20,8 @@ public class NpgsqlNodaTimeTypeMappingSourcePlugin : IRelationalTypeMappingSourc
     internal static readonly bool LegacyTimestampBehavior;
     internal static readonly bool DisableDateTimeInfinityConversions;
 #endif
+
+    private readonly bool _supportsMultiranges;
 
     static NpgsqlNodaTimeTypeMappingSourcePlugin()
     {
@@ -67,6 +70,10 @@ public class NpgsqlNodaTimeTypeMappingSourcePlugin : IRelationalTypeMappingSourc
     private readonly NpgsqlRangeTypeMapping _timestamptzZonedDateTimeRange;
     private readonly NpgsqlRangeTypeMapping _timestamptzOffsetDateTimeRange;
     private readonly NpgsqlRangeTypeMapping _dateRange;
+
+    // NodaTime has DateInterval and Interval, which correspond to PostgreSQL daterange and tstzrange.
+    // Users can still map the PG types to NpgsqlRange<LocalDate> and NpgsqlRange<Instant>, but the DateInterval/Interval mappings are
+    // preferred.
     private readonly DateIntervalRangeMapping _dateIntervalRange = new();
     private readonly IntervalRangeMapping _intervalRange = new();
 
@@ -75,8 +82,13 @@ public class NpgsqlNodaTimeTypeMappingSourcePlugin : IRelationalTypeMappingSourc
     /// <summary>
     /// Constructs an instance of the <see cref="NpgsqlNodaTimeTypeMappingSourcePlugin"/> class.
     /// </summary>
-    public NpgsqlNodaTimeTypeMappingSourcePlugin(ISqlGenerationHelper sqlGenerationHelper)
+    public NpgsqlNodaTimeTypeMappingSourcePlugin(
+        ISqlGenerationHelper sqlGenerationHelper,
+        INpgsqlSingletonOptions options)
     {
+        _supportsMultiranges = !options.IsPostgresVersionSet
+            || options.IsPostgresVersionSet && options.PostgresVersion >= new Version(14, 0);
+
         _timestampLocalDateTimeRange
             = new NpgsqlRangeTypeMapping("tsrange", typeof(NpgsqlRange<LocalDateTime>), _timestampLocalDateTime, sqlGenerationHelper);
         _legacyTimestampInstantRange
@@ -154,7 +166,8 @@ public class NpgsqlNodaTimeTypeMappingSourcePlugin : IRelationalTypeMappingSourc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
-        => FindBaseMapping(mappingInfo)?.Clone(mappingInfo);
+        => FindBaseMapping(mappingInfo)?.Clone(mappingInfo)
+            ?? FindMultirangeMapping(mappingInfo)?.Clone(mappingInfo);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -221,5 +234,102 @@ public class NpgsqlNodaTimeTypeMappingSourcePlugin : IRelationalTypeMappingSourc
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     This resolves mappings for the specialized NodaTime <see cref="DateInterval" /> and <see cref="Interval" />, mapping them to
+    ///     PostgreSQL datemultirange and tstzmultirange.
+    /// </summary>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    protected virtual RelationalTypeMapping? FindMultirangeMapping(RelationalTypeMappingInfo info)
+    {
+        if (!_supportsMultiranges)
+        {
+            return null;
+        }
+
+        var multirangeClrType = info.ClrType;
+        RelationalTypeMapping? rangeMapping;
+        string? rangeStoreType = null;
+
+        var multirangeStoreType = info.StoreTypeName;
+        if (multirangeStoreType is not null)
+        {
+            // If the multirange store type was explicitly specified, simply get the corresponding range type and build a type mapping
+            // based on that; this notably means that the collection store type overrides the element's, if both were specified.
+            // Note that if an ElementTypeMapping was provided, we still use that, cloning it to apply the range store type derived from
+            // the multirange.
+            rangeStoreType = multirangeStoreType switch
+            {
+                "tstzmultirange" => "tstzrange",
+                "datemultirange" => "daterange",
+                _ => null
+            };
+
+            if (rangeStoreType is null)
+            {
+                return null;
+            }
+
+            // TODO: Need to clone the element's type mapping, to preserve any configured converter/comparer/whatever; but we need to apply
+            // both the inferred store type (overriding the element's), and also NpgsqlDbType
+            // rangeMapping = (info.ElementTypeMapping is null
+            //     ? FindMapping(rangeStoreType)
+            //     : info.ElementTypeMapping.Clone(rangeStoreType, size: null));
+
+            rangeMapping = FindMapping(new RelationalTypeMappingInfo(storeTypeName: rangeStoreType));
+        }
+        else
+        {
+            // A store type wasn't specified on the collection (see above). Either get the ElementTypeMapping configured on the property,
+            // or infer it from the multirange's CLR type
+            if (info.ElementTypeMapping is not null)
+            {
+                rangeMapping = info.ElementTypeMapping;
+            }
+            else
+            {
+                Type? rangeClrType = null;
+                if (multirangeClrType is not null)
+                {
+                    rangeClrType = multirangeClrType.TryGetElementType(typeof(IEnumerable<>));
+
+                    // E.g. Newtonsoft.Json's JToken is enumerable over itself, exclude that scenario to avoid stack overflow.
+                    if (rangeClrType != typeof(Interval) && rangeClrType != typeof(DateInterval)
+                        || multirangeClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())
+                    {
+                        return null;
+                    }
+                }
+
+                rangeMapping = (rangeClrType, rangeStoreType) switch
+                {
+                    (not null, not null) => FindMapping(new RelationalTypeMappingInfo { ClrType = rangeClrType, StoreTypeName = rangeStoreType }),
+                    (not null, null) => FindMapping(new RelationalTypeMappingInfo { ClrType = rangeClrType }),
+                    (null, not null) => FindMapping(new RelationalTypeMappingInfo { StoreTypeName = rangeStoreType }),
+                    _ => null
+                };
+            }
+        }
+
+        if (rangeMapping is not (DateIntervalRangeMapping or IntervalRangeMapping))
+        {
+            return null;
+        }
+
+        // TODO: Consider returning List<T> by default for scaffolding, more useful, #2758
+        multirangeClrType ??= rangeMapping.ClrType.MakeArrayType();
+
+        return rangeMapping switch
+        {
+            DateIntervalRangeMapping m => new DateIntervalMultirangeMapping(multirangeClrType, m),
+            IntervalRangeMapping m => new IntervalMultirangeMapping(multirangeClrType, m),
+            _ => throw new UnreachableException()
+        };
     }
 }

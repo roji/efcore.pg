@@ -133,7 +133,6 @@ public class NpgsqlArrayTypeMapping<TCollection, TElement> : NpgsqlArrayTypeMapp
             }
         }
 
-        // TODO: Confirm model vs. provider type here!
         // We do GetElementType for multidimensional arrays - these don't implement generic IEnumerable<>
         var modelElementType = typeof(TCollection).TryGetElementType(typeof(IEnumerable<>)) ?? typeof(TCollection).GetElementType();
 

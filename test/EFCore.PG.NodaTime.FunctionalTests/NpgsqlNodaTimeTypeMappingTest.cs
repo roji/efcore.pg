@@ -636,12 +636,13 @@ public class NpgsqlNodaTimeTypeMappingTest
             new JsonValueReaderWriterSource(new JsonValueReaderWriterSourceDependencies()),
             Array.Empty<ITypeMappingSourcePlugin>()),
         new RelationalTypeMappingSourceDependencies(
-            new IRelationalTypeMappingSourcePlugin[] {
-                new NpgsqlNodaTimeTypeMappingSourcePlugin(new NpgsqlSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()))
+            new IRelationalTypeMappingSourcePlugin[]
+            {
+                new NpgsqlNodaTimeTypeMappingSourcePlugin(
+                    new NpgsqlSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()), new NpgsqlSingletonOptions())
             }),
         new NpgsqlSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
-        new NpgsqlSingletonOptions()
-    );
+        new NpgsqlSingletonOptions());
 
     private static RelationalTypeMapping GetMapping(string storeType) => Mapper.FindMapping(storeType);
 
