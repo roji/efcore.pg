@@ -257,6 +257,19 @@ public class NpgsqlNodaTimeTypeMappingSourcePlugin : IRelationalTypeMappingSourc
         RelationalTypeMapping? rangeMapping;
         string? rangeStoreType = null;
 
+        Type? rangeClrType = null;
+        if (multirangeClrType is not null)
+        {
+            rangeClrType = multirangeClrType.TryGetElementType(typeof(IEnumerable<>));
+
+            // E.g. Newtonsoft.Json's JToken is enumerable over itself, exclude that scenario to avoid stack overflow.
+            if (rangeClrType != typeof(Interval) && rangeClrType != typeof(DateInterval)
+                || multirangeClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())
+            {
+                return null;
+            }
+        }
+
         var multirangeStoreType = info.StoreTypeName;
         if (multirangeStoreType is not null)
         {
@@ -282,7 +295,9 @@ public class NpgsqlNodaTimeTypeMappingSourcePlugin : IRelationalTypeMappingSourc
             //     ? FindMapping(rangeStoreType)
             //     : info.ElementTypeMapping.Clone(rangeStoreType, size: null));
 
-            rangeMapping = FindMapping(new RelationalTypeMappingInfo(storeTypeName: rangeStoreType));
+            rangeMapping = rangeClrType is null
+                ? FindMapping(new RelationalTypeMappingInfo(storeTypeName: rangeStoreType))
+                : FindMapping(new RelationalTypeMappingInfo(rangeClrType, storeTypeName: rangeStoreType));
         }
         else
         {
@@ -294,19 +309,6 @@ public class NpgsqlNodaTimeTypeMappingSourcePlugin : IRelationalTypeMappingSourc
             }
             else
             {
-                Type? rangeClrType = null;
-                if (multirangeClrType is not null)
-                {
-                    rangeClrType = multirangeClrType.TryGetElementType(typeof(IEnumerable<>));
-
-                    // E.g. Newtonsoft.Json's JToken is enumerable over itself, exclude that scenario to avoid stack overflow.
-                    if (rangeClrType != typeof(Interval) && rangeClrType != typeof(DateInterval)
-                        || multirangeClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())
-                    {
-                        return null;
-                    }
-                }
-
                 rangeMapping = (rangeClrType, rangeStoreType) switch
                 {
                     (not null, not null) => FindMapping(new RelationalTypeMappingInfo { ClrType = rangeClrType, StoreTypeName = rangeStoreType }),

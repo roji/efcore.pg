@@ -570,6 +570,23 @@ public class NpgsqlTypeMappingSource : RelationalTypeMappingSource
         var collectionClrType = info.ClrType;
         var collectionStoreType = info.StoreTypeName;
 
+        Type? elementClrType = null;
+        if (collectionClrType is not null)
+        {
+            // We check IsArray and GetElementType() to support multidimensional arrays, which aren't IEnumerable<>
+            elementClrType = collectionClrType.IsArray
+                ? collectionClrType.GetElementType()
+                : collectionClrType.TryGetElementType(typeof(IEnumerable<>));
+
+            // E.g. Newtonsoft.Json's JToken is enumerable over itself, exclude that scenario to avoid stack overflow.
+            if (elementClrType is null
+                || elementClrType == collectionClrType
+                || collectionClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())
+            {
+                return null;
+            }
+        }
+
         if (collectionStoreType is not null)
         {
             if (!collectionStoreType.EndsWith("[]", StringComparison.Ordinal))
@@ -585,7 +602,9 @@ public class NpgsqlTypeMappingSource : RelationalTypeMappingSource
             //     ? FindMapping(rangeStoreType)
             //     : info.ElementTypeMapping.Clone(elementStoreType, size: null));
 
-            elementMapping = FindMapping(elementStoreType);
+            elementMapping = elementClrType is null
+                ? FindMapping(elementStoreType)
+                : FindMapping(elementClrType, elementStoreType);
         }
         else
         {
@@ -597,22 +616,6 @@ public class NpgsqlTypeMappingSource : RelationalTypeMappingSource
             }
             else
             {
-                Type? elementClrType = null;
-                if (collectionClrType is not null)
-                {
-                    // We check IsArray and GetElementType() to support multidimensional arrays, which aren't IEnumerable<>
-                    elementClrType = collectionClrType.IsArray
-                        ? collectionClrType.GetElementType()
-                        : collectionClrType.TryGetElementType(typeof(IEnumerable<>));
-
-                    // E.g. Newtonsoft.Json's JToken is enumerable over itself, exclude that scenario to avoid stack overflow.
-                    if (elementClrType is null
-                        || elementClrType == collectionClrType
-                        || collectionClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())
-                    {
-                        return null;
-                    }
-                }
 
                 elementMapping = (elementClrType, elementStoreType) switch
                 {
@@ -627,6 +630,10 @@ public class NpgsqlTypeMappingSource : RelationalTypeMappingSource
         return elementMapping switch
         {
             NpgsqlArrayTypeMapping => null, // Nested arrays are not supported by PostgreSQL
+
+            // TODO: NpgsqlArrayConverter currently only supports array and List, so exclude cases with an element converter and a
+            // non-array/list collection type. #2759.
+            { Converter: not null } when collectionClrType is not null && !collectionClrType.IsArrayOrGenericList() => null,
 
             not null
                 => (NpgsqlArrayTypeMapping)Activator.CreateInstance(
@@ -655,6 +662,21 @@ public class NpgsqlTypeMappingSource : RelationalTypeMappingSource
         var multirangeClrType = info.ClrType;
         RelationalTypeMapping? elementMapping;
         string? rangeStoreType = null;
+
+        Type? rangeClrType = null;
+        if (multirangeClrType is not null)
+        {
+            rangeClrType = multirangeClrType.TryGetElementType(typeof(IEnumerable<>));
+
+            // E.g. Newtonsoft.Json's JToken is enumerable over itself, exclude that scenario to avoid stack overflow.
+            if (rangeClrType is null
+                || !rangeClrType.IsGenericType
+                || rangeClrType.GetGenericTypeDefinition() != typeof(NpgsqlRange<>)
+                || multirangeClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())
+            {
+                return null;
+            }
+        }
 
         var multirangeStoreType = info.StoreTypeName;
         if (multirangeStoreType is not null)
@@ -685,7 +707,9 @@ public class NpgsqlTypeMappingSource : RelationalTypeMappingSource
             //     ? FindMapping(rangeStoreType)
             //     : info.ElementTypeMapping.Clone(rangeStoreType, size: null)) as NpgsqlRangeTypeMapping;
 
-            elementMapping = FindMapping(rangeStoreType);
+            elementMapping = rangeClrType is null
+                ? FindMapping(rangeStoreType)
+                : FindMapping(rangeClrType, rangeStoreType);
         }
         else
         {
@@ -697,21 +721,6 @@ public class NpgsqlTypeMappingSource : RelationalTypeMappingSource
             }
             else
             {
-                Type? rangeClrType = null;
-                if (multirangeClrType is not null)
-                {
-                    rangeClrType = multirangeClrType.TryGetElementType(typeof(IEnumerable<>));
-
-                    // E.g. Newtonsoft.Json's JToken is enumerable over itself, exclude that scenario to avoid stack overflow.
-                    if (rangeClrType is null
-                        || !rangeClrType.IsGenericType
-                        || rangeClrType.GetGenericTypeDefinition() != typeof(NpgsqlRange<>)
-                        || multirangeClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())
-                    {
-                        return null;
-                    }
-                }
-
                 elementMapping = (rangeClrType, rangeStoreType) switch
                 {
                     (not null, not null) => FindMapping(rangeClrType, rangeStoreType),
