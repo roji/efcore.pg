@@ -90,22 +90,20 @@ public class NpgsqlNetworkTranslator : IMethodCallTranslator
                 => _sqlExpressionFactory.MakePostgresBinary(PostgresExpressionType.NetworkContainsOrContainedBy, arguments[1], arguments[2]),
 
             nameof(NpgsqlNetworkDbFunctionsExtensions.BitwiseNot)
-                => new SqlUnaryExpression(ExpressionType.Not, arguments[1], arguments[1].Type, arguments[1].TypeMapping),
+                => _sqlExpressionFactory.Not(arguments[1]),
 
             nameof(NpgsqlNetworkDbFunctionsExtensions.BitwiseAnd)
                 => _sqlExpressionFactory.And(arguments[1], arguments[2]),
             nameof(NpgsqlNetworkDbFunctionsExtensions.BitwiseOr)
                 => _sqlExpressionFactory.Or(arguments[1], arguments[2]),
 
-            // Add/Subtract accept inet + int, so we can't use the default type mapping inference logic which assumes
-            // same-typed operands
             nameof(NpgsqlNetworkDbFunctionsExtensions.Add)
                 => new SqlBinaryExpression(
                     ExpressionType.Add,
                     _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[1]),
                     _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]),
-                    arguments[1].Type,
-                    arguments[1].TypeMapping),
+                    typeof(IPAddress),
+                    _inetMapping),
 
             nameof(NpgsqlNetworkDbFunctionsExtensions.Subtract) when arguments[2].Type == typeof(int)
                 => new SqlBinaryExpression(

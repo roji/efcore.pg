@@ -30,18 +30,18 @@ public static class NpgsqlNetworkDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(LessThan)));
 
     /// <summary>
-    /// Determines whether an (IPAddress Address, int Subnet) is less than another (IPAddress Address, int Subnet).
+    /// Determines whether an <see cref="NpgsqlCidr" /> is less than another <see cref="NpgsqlCidr" />.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="cidr">The left-hand cidr.</param>
     /// <param name="other">The right-hand cidr.</param>
     /// <returns>
-    /// True if the (IPAddress Address, int Subnet) is less than the other (IPAddress Address, int Subnet); otherwise, false.
+    /// True if the <see cref="NpgsqlCidr" /> is less than the other <see cref="NpgsqlCidr" />; otherwise, false.
     /// </returns>
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool LessThan(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+    public static bool LessThan(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(LessThan)));
 
     /// <summary>
@@ -75,18 +75,18 @@ public static class NpgsqlNetworkDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(LessThanOrEqual)));
 
     /// <summary>
-    /// Determines whether an (IPAddress Address, int Subnet) is less than or equal to another (IPAddress Address, int Subnet).
+    /// Determines whether an <see cref="NpgsqlCidr" /> is less than or equal to another <see cref="NpgsqlCidr" />.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="cidr">The left-hand cidr.</param>
     /// <param name="other">The right-hand cidr.</param>
     /// <returns>
-    /// True if the (IPAddress Address, int Subnet) is less than or equal to the other (IPAddress Address, int Subnet); otherwise, false.
+    /// True if the <see cref="NpgsqlCidr" /> is less than or equal to the other <see cref="NpgsqlCidr" />; otherwise, false.
     /// </returns>
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool LessThanOrEqual(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+    public static bool LessThanOrEqual(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(LessThanOrEqual)));
 
     /// <summary>
@@ -120,18 +120,18 @@ public static class NpgsqlNetworkDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(GreaterThanOrEqual)));
 
     /// <summary>
-    /// Determines whether an (IPAddress Address, int Subnet) is greater than or equal to another (IPAddress Address, int Subnet).
+    /// Determines whether an <see cref="NpgsqlCidr" /> is greater than or equal to another <see cref="NpgsqlCidr" />.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="cidr">The left-hand cidr.</param>
     /// <param name="other">The right-hand cidr.</param>
     /// <returns>
-    /// True if the (IPAddress Address, int Subnet) is greater than or equal to the other (IPAddress Address, int Subnet); otherwise, false.
+    /// True if the <see cref="NpgsqlCidr" /> is greater than or equal to the other <see cref="NpgsqlCidr" />; otherwise, false.
     /// </returns>
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool GreaterThanOrEqual(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+    public static bool GreaterThanOrEqual(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(GreaterThanOrEqual)));
 
     /// <summary>
@@ -165,18 +165,18 @@ public static class NpgsqlNetworkDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(GreaterThan)));
 
     /// <summary>
-    /// Determines whether an (IPAddress Address, int Subnet) is greater than another (IPAddress Address, int Subnet).
+    /// Determines whether an <see cref="NpgsqlCidr" /> is greater than another <see cref="NpgsqlCidr" />.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="cidr">The left-hand cidr.</param>
     /// <param name="other">The right-hand cidr.</param>
     /// <returns>
-    /// True if the (IPAddress Address, int Subnet) is greater than the other (IPAddress Address, int Subnet); otherwise, false.
+    /// True if the <see cref="NpgsqlCidr" /> is greater than the other <see cref="NpgsqlCidr" />; otherwise, false.
     /// </returns>
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool GreaterThan(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+    public static bool GreaterThan(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(GreaterThan)));
 
     /// <summary>
@@ -225,22 +225,22 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool ContainedBy(this DbFunctions _, IPAddress inet, (IPAddress Address, int Subnet) other)
+    public static bool ContainedBy(this DbFunctions _, IPAddress inet, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ContainedBy)));
 
     /// <summary>
-    /// Determines whether an (IPAddress Address, int Subnet) is contained within another (IPAddress Address, int Subnet).
+    /// Determines whether an <see cref="NpgsqlCidr" /> is contained within another <see cref="NpgsqlCidr" />.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="cidr">The cidr to locate.</param>
     /// <param name="other">The cidr to search.</param>
     /// <returns>
-    /// True if the (IPAddress Address, int Subnet) is contained within the other (IPAddress Address, int Subnet); otherwise, false.
+    /// True if the <see cref="NpgsqlCidr" /> is contained within the other <see cref="NpgsqlCidr" />; otherwise, false.
     /// </returns>
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool ContainedBy(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+    public static bool ContainedBy(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ContainedBy)));
 
     /// <summary>
@@ -270,22 +270,22 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool ContainedByOrEqual(this DbFunctions _, IPAddress inet, (IPAddress Address, int Subnet) other)
+    public static bool ContainedByOrEqual(this DbFunctions _, IPAddress inet, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ContainedByOrEqual)));
 
     /// <summary>
-    /// Determines whether an (IPAddress Address, int Subnet) is contained within or equal to another (IPAddress Address, int Subnet).
+    /// Determines whether an <see cref="NpgsqlCidr" /> is contained within or equal to another <see cref="NpgsqlCidr" />.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="cidr">The cidr to locate.</param>
     /// <param name="other">The cidr to search.</param>
     /// <returns>
-    /// True if the (IPAddress Address, int Subnet) is contained within or equal to the other (IPAddress Address, int Subnet); otherwise, false.
+    /// True if the <see cref="NpgsqlCidr" /> is contained within or equal to the other <see cref="NpgsqlCidr" />; otherwise, false.
     /// </returns>
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool ContainedByOrEqual(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+    public static bool ContainedByOrEqual(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ContainedByOrEqual)));
 
     /// <summary>
@@ -315,23 +315,22 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool Contains(
-        this DbFunctions _, (IPAddress Address, int Subnet) cidr, IPAddress other)
+    public static bool Contains(this DbFunctions _, NpgsqlCidr cidr, IPAddress other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Contains)));
 
     /// <summary>
-    /// Determines whether an (IPAddress Address, int Subnet) contains another (IPAddress Address, int Subnet).
+    /// Determines whether an <see cref="NpgsqlCidr" /> contains another <see cref="NpgsqlCidr" />.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="cidr">The cidr to search.</param>
     /// <param name="other">The cidr to locate.</param>
     /// <returns>
-    /// True if the (IPAddress Address, int Subnet) contains the other (IPAddress Address, int Subnet); otherwise, false.
+    /// True if the <see cref="NpgsqlCidr" /> contains the other <see cref="NpgsqlCidr" />; otherwise, false.
     /// </returns>
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool Contains(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+    public static bool Contains(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Contains)));
 
     /// <summary>
@@ -361,22 +360,22 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool ContainsOrEqual(this DbFunctions _, (IPAddress Address, int Subnet) cidr, IPAddress other)
+    public static bool ContainsOrEqual(this DbFunctions _, NpgsqlCidr cidr, IPAddress other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ContainsOrEqual)));
 
     /// <summary>
-    /// Determines whether an (IPAddress Address, int Subnet) contains or is equal to another (IPAddress Address, int Subnet).
+    /// Determines whether an <see cref="NpgsqlCidr" /> contains or is equal to another <see cref="NpgsqlCidr" />.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="cidr">The cidr to search.</param>
     /// <param name="other">The cidr to locate.</param>
     /// <returns>
-    /// True if the (IPAddress Address, int Subnet) contains or is equal to the other (IPAddress Address, int Subnet); otherwise, false.
+    /// True if the <see cref="NpgsqlCidr" /> contains or is equal to the other <see cref="NpgsqlCidr" />; otherwise, false.
     /// </returns>
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool ContainsOrEqual(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+    public static bool ContainsOrEqual(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ContainsOrEqual)));
 
     /// <summary>
@@ -406,7 +405,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool ContainsOrContainedBy(this DbFunctions _, (IPAddress Address, int Subnet) cidr, IPAddress other)
+    public static bool ContainsOrContainedBy(this DbFunctions _, NpgsqlCidr cidr, IPAddress other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ContainsOrContainedBy)));
 
     /// <summary>
@@ -421,23 +420,22 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool ContainsOrContainedBy(this DbFunctions _, IPAddress inet, (IPAddress Address, int Subnet) other)
+    public static bool ContainsOrContainedBy(this DbFunctions _, IPAddress inet, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ContainsOrContainedBy)));
 
     /// <summary>
-    /// Determines whether an (IPAddress Address, int Subnet) contains or is contained by another (IPAddress Address, int Subnet).
+    /// Determines whether an <see cref="NpgsqlCidr" /> contains or is contained by another <see cref="NpgsqlCidr" />.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="cidr">The cidr to search.</param>
     /// <param name="other">The cidr to locate.</param>
     /// <returns>
-    /// True if the (IPAddress Address, int Subnet) contains or is contained by the other (IPAddress Address, int Subnet); otherwise, false.
+    /// True if the <see cref="NpgsqlCidr" /> contains or is contained by the other <see cref="NpgsqlCidr" />; otherwise, false.
     /// </returns>
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool ContainsOrContainedBy(
-        this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+    public static bool ContainsOrContainedBy(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(ContainsOrContainedBy)));
 
     #endregion
@@ -458,20 +456,20 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     public static IPAddress BitwiseNot(this DbFunctions _, IPAddress inet)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(BitwiseNot)));
 
-    /// <summary>
-    /// Computes the bitwise NOT operation on an (IPAddress Address, int Subnet).
-    /// </summary>
-    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
-    /// <param name="cidr">The cidr to negate.</param>
-    /// <returns>
-    /// The result of the bitwise NOT operation.
-    /// </returns>
-    /// <exception cref="NotSupportedException">
-    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
-    /// </exception>
-    public static (IPAddress Address, int Subnet) BitwiseNot(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(BitwiseNot)));
-
+    // /// <summary>
+    // /// Computes the bitwise NOT operation on an <see cref="NpgsqlCidr" />.
+    // /// </summary>
+    // /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    // /// <param name="cidr">The cidr to negate.</param>
+    // /// <returns>
+    // /// The result of the bitwise NOT operation.
+    // /// </returns>
+    // /// <exception cref="NotSupportedException">
+    // /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    // /// </exception>
+    // public static IPAddress BitwiseNot(this DbFunctions _, NpgsqlCidr cidr)
+    //     => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(BitwiseNot)));
+    //
     /// <summary>
     /// Computes the bitwise NOT operation on an <see cref="PhysicalAddress"/>.
     /// </summary>
@@ -501,21 +499,20 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     public static IPAddress BitwiseAnd(this DbFunctions _, IPAddress inet, IPAddress other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(BitwiseAnd)));
 
-    /// <summary>
-    /// Computes the bitwise AND of two (IPAddress Address, int Subnet) instances.
-    /// </summary>
-    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
-    /// <param name="cidr">The left-hand cidr.</param>
-    /// <param name="other">The right-hand cidr.</param>
-    /// <returns>
-    /// The result of the bitwise AND operation.
-    /// </returns>
-    /// <exception cref="NotSupportedException">
-    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
-    /// </exception>
-    public static (IPAddress Address, int Subnet) BitwiseAnd(
-        this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(BitwiseAnd)));
+    // /// <summary>
+    // /// Computes the bitwise AND of two <see cref="NpgsqlCidr" /> instances.
+    // /// </summary>
+    // /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    // /// <param name="cidr">The left-hand cidr.</param>
+    // /// <param name="other">The right-hand cidr.</param>
+    // /// <returns>
+    // /// The result of the bitwise AND operation.
+    // /// </returns>
+    // /// <exception cref="NotSupportedException">
+    // /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    // /// </exception>
+    // public static IPAddress BitwiseAnd(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
+    //     => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(BitwiseAnd)));
 
     /// <summary>
     /// Computes the bitwise AND of two <see cref="PhysicalAddress"/> instances.
@@ -547,21 +544,20 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     public static IPAddress BitwiseOr(this DbFunctions _, IPAddress inet, IPAddress other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(BitwiseOr)));
 
-    /// <summary>
-    /// Computes the bitwise OR of two (IPAddress Address, int Subnet) instances.
-    /// </summary>
-    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
-    /// <param name="cidr">The left-hand cidr.</param>
-    /// <param name="other">The right-hand cidr.</param>
-    /// <returns>
-    /// The result of the bitwise OR operation.
-    /// </returns>
-    /// <exception cref="NotSupportedException">
-    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
-    /// </exception>
-    public static (IPAddress Address, int Subnet) BitwiseOr(
-        this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
-        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(BitwiseOr)));
+    // /// <summary>
+    // /// Computes the bitwise OR of two <see cref="NpgsqlCidr" /> instances.
+    // /// </summary>
+    // /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    // /// <param name="cidr">The left-hand cidr.</param>
+    // /// <param name="other">The right-hand cidr.</param>
+    // /// <returns>
+    // /// The result of the bitwise OR operation.
+    // /// </returns>
+    // /// <exception cref="NotSupportedException">
+    // /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    // /// </exception>
+    // public static IPAddress BitwiseOr(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
+    //     => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(BitwiseOr)));
 
     /// <summary>
     /// Computes the bitwise OR of two <see cref="PhysicalAddress"/> instances.
@@ -598,18 +594,18 @@ public static class NpgsqlNetworkDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Add)));
 
     /// <summary>
-    /// Adds the <paramref name="value"/> to the (IPAddress Address, int Subnet).
+    /// Adds the <paramref name="value"/> to the <see cref="NpgsqlCidr" />.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="cidr">The cidr.</param>
     /// <param name="value">The value to add.</param>
     /// <returns>
-    /// The (IPAddress Address, int Subnet) augmented by the <paramref name="value"/>.
+    /// The <see cref="NpgsqlCidr" /> augmented by the <paramref name="value"/>.
     /// </returns>
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static (IPAddress Address, int Subnet) Add(this DbFunctions _, (IPAddress Address, int Subnet) cidr, int value)
+    public static IPAddress Add(this DbFunctions _, NpgsqlCidr cidr, int value)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Add)));
 
     /// <summary>
@@ -628,18 +624,18 @@ public static class NpgsqlNetworkDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Subtract)));
 
     /// <summary>
-    /// Subtracts the <paramref name="value"/> from the (IPAddress Address, int Subnet).
+    /// Subtracts the <paramref name="value"/> from the <see cref="NpgsqlCidr" />.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="cidr">The inet.</param>
     /// <param name="value">The value to subtract.</param>
     /// <returns>
-    /// The (IPAddress Address, int Subnet) augmented by the <paramref name="value"/>.
+    /// The <see cref="NpgsqlCidr" /> augmented by the <paramref name="value"/>.
     /// </returns>
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static (IPAddress Address, int Subnet) Subtract(this DbFunctions _, (IPAddress Address, int Subnet) cidr, int value)
+    public static NpgsqlInet Subtract(this DbFunctions _, NpgsqlCidr cidr, int value)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Subtract)));
 
     /// <summary>
@@ -658,7 +654,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Subtract)));
 
     /// <summary>
-    /// Subtracts one (IPAddress Address, int Subnet) from another (IPAddress Address, int Subnet).
+    /// Subtracts one <see cref="NpgsqlCidr" /> from another <see cref="NpgsqlCidr" />.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
     /// <param name="cidr">The cidr from which to subtract.</param>
@@ -669,8 +665,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static int Subtract(
-        this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+    public static int Subtract(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Subtract)));
 
     #endregion
@@ -702,7 +697,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static string Abbreviate(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+    public static string Abbreviate(this DbFunctions _, NpgsqlCidr cidr)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Abbreviate)));
 
     /// <summary>
@@ -730,7 +725,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static IPAddress Broadcast(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+    public static IPAddress Broadcast(this DbFunctions _, NpgsqlCidr cidr)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Broadcast)));
 
     /// <summary>
@@ -758,7 +753,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static int Family(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+    public static int Family(this DbFunctions _, NpgsqlCidr cidr)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Family)));
 
     /// <summary>
@@ -786,7 +781,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static string Host(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+    public static string Host(this DbFunctions _, NpgsqlCidr cidr)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Host)));
 
     /// <summary>
@@ -814,7 +809,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static IPAddress HostMask(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+    public static IPAddress HostMask(this DbFunctions _, NpgsqlCidr cidr)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(HostMask)));
 
     /// <summary>
@@ -842,7 +837,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static int MaskLength(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+    public static int MaskLength(this DbFunctions _, NpgsqlCidr cidr)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(MaskLength)));
 
     /// <summary>
@@ -870,7 +865,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static IPAddress Netmask(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+    public static IPAddress Netmask(this DbFunctions _, NpgsqlCidr cidr)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Netmask)));
 
     /// <summary>
@@ -884,7 +879,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static (IPAddress Address, int Subnet) Network(this DbFunctions _, IPAddress inet)
+    public static NpgsqlCidr Network(this DbFunctions _, IPAddress inet)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Network)));
 
     /// <summary>
@@ -898,7 +893,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static (IPAddress Address, int Subnet) Network(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+    public static NpgsqlCidr Network(this DbFunctions _, NpgsqlCidr cidr)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Network)));
 
     /// <summary>
@@ -928,7 +923,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static (IPAddress Address, int Subnet) SetMaskLength(this DbFunctions _, (IPAddress Address, int Subnet) cidr, int length)
+    public static NpgsqlCidr SetMaskLength(this DbFunctions _, NpgsqlCidr cidr, int length)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(SetMaskLength)));
 
     /// <summary>
@@ -956,7 +951,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static string Text(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+    public static string Text(this DbFunctions _, NpgsqlCidr cidr)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Text)));
 
     /// <summary>
@@ -986,7 +981,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static bool SameFamily(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+    public static bool SameFamily(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(SameFamily)));
 
     /// <summary>
@@ -1001,7 +996,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static (IPAddress Address, int Subnet) Merge(this DbFunctions _, IPAddress inet, IPAddress other)
+    public static NpgsqlCidr Merge(this DbFunctions _, IPAddress inet, IPAddress other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Merge)));
 
     /// <summary>
@@ -1016,8 +1011,7 @@ public static class NpgsqlNetworkDbFunctionsExtensions
     /// <exception cref="NotSupportedException">
     /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
     /// </exception>
-    public static (IPAddress Address, int Subnet) Merge(
-        this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+    public static NpgsqlCidr Merge(this DbFunctions _, NpgsqlCidr cidr, NpgsqlCidr other)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Merge)));
 
     /// <summary>
@@ -1049,4 +1043,532 @@ public static class NpgsqlNetworkDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Set7BitMac8)));
 
     #endregion
+
+    #region Obsolete
+
+    /// <summary>
+    /// Determines whether an (IPAddress Address, int Subnet) is less than another (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The left-hand cidr.</param>
+    /// <param name="other">The right-hand cidr.</param>
+    /// <returns>
+    /// True if the (IPAddress Address, int Subnet) is less than the other (IPAddress Address, int Subnet); otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool LessThan(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether an (IPAddress Address, int Subnet) is less than or equal to another (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The left-hand cidr.</param>
+    /// <param name="other">The right-hand cidr.</param>
+    /// <returns>
+    /// True if the (IPAddress Address, int Subnet) is less than or equal to the other (IPAddress Address, int Subnet); otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool LessThanOrEqual(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether an (IPAddress Address, int Subnet) is greater than or equal to another (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The left-hand cidr.</param>
+    /// <param name="other">The right-hand cidr.</param>
+    /// <returns>
+    /// True if the (IPAddress Address, int Subnet) is greater than or equal to the other (IPAddress Address, int Subnet); otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool GreaterThanOrEqual(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether an (IPAddress Address, int Subnet) is greater than another (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The left-hand cidr.</param>
+    /// <param name="other">The right-hand cidr.</param>
+    /// <returns>
+    /// True if the (IPAddress Address, int Subnet) is greater than the other (IPAddress Address, int Subnet); otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool GreaterThan(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether an <see cref="IPAddress"/> is contained within a network.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="inet">The inet to locate.</param>
+    /// <param name="other">The cidr to search.</param>
+    /// <returns>
+    /// True if the <see cref="IPAddress"/> is contained within the network; otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool ContainedBy(this DbFunctions _, IPAddress inet, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether a network contains or is equal to another <see cref="IPAddress"/>.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The network to search.</param>
+    /// <param name="other">The IP address to locate.</param>
+    /// <returns>
+    /// True if the network contains or is equal to the other <see cref="IPAddress"/>; otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool ContainsOrEqual(this DbFunctions _, (IPAddress Address, int Subnet) cidr, IPAddress other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether an (IPAddress Address, int Subnet) is contained within another (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr to locate.</param>
+    /// <param name="other">The cidr to search.</param>
+    /// <returns>
+    /// True if the (IPAddress Address, int Subnet) is contained within the other (IPAddress Address, int Subnet); otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool ContainedBy(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether an <see cref="IPAddress"/> is contained within or equal to a network.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="inet">The inet to locate.</param>
+    /// <param name="other">The cidr to search.</param>
+    /// <returns>
+    /// True if the <see cref="IPAddress"/> is contained within or equal to the network; otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool ContainedByOrEqual(this DbFunctions _, IPAddress inet, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether an (IPAddress Address, int Subnet) is contained within or equal to another (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr to locate.</param>
+    /// <param name="other">The cidr to search.</param>
+    /// <returns>
+    /// True if the (IPAddress Address, int Subnet) is contained within or equal to the other (IPAddress Address, int Subnet); otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool ContainedByOrEqual(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether a network contains another <see cref="IPAddress"/>.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The network to search.</param>
+    /// <param name="other">The IP address to locate.</param>
+    /// <returns>
+    /// True if the network contains the other <see cref="IPAddress"/>; otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool Contains(
+        this DbFunctions _, (IPAddress Address, int Subnet) cidr, IPAddress other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether an (IPAddress Address, int Subnet) contains another (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr to search.</param>
+    /// <param name="other">The cidr to locate.</param>
+    /// <returns>
+    /// True if the (IPAddress Address, int Subnet) contains the other (IPAddress Address, int Subnet); otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool Contains(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether an (IPAddress Address, int Subnet) contains or is equal to another (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr to search.</param>
+    /// <param name="other">The cidr to locate.</param>
+    /// <returns>
+    /// True if the (IPAddress Address, int Subnet) contains or is equal to the other (IPAddress Address, int Subnet); otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool ContainsOrEqual(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether a network contains or is contained by an <see cref="IPAddress"/>.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The network to search.</param>
+    /// <param name="other">The IP address to locate.</param>
+    /// <returns>
+    /// True if the network contains or is contained by the <see cref="IPAddress"/>; otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool ContainsOrContainedBy(this DbFunctions _, (IPAddress Address, int Subnet) cidr, IPAddress other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether an <see cref="IPAddress"/> contains or is contained by a network.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="inet">The IP address to search.</param>
+    /// <param name="other">The network to locate.</param>
+    /// <returns>
+    /// True if the <see cref="IPAddress"/> contains or is contained by the network; otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool ContainsOrContainedBy(this DbFunctions _, IPAddress inet, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Determines whether an (IPAddress Address, int Subnet) contains or is contained by another (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr to search.</param>
+    /// <param name="other">The cidr to locate.</param>
+    /// <returns>
+    /// True if the (IPAddress Address, int Subnet) contains or is contained by the other (IPAddress Address, int Subnet); otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool ContainsOrContainedBy(
+        this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Computes the bitwise NOT operation on an (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr to negate.</param>
+    /// <returns>
+    /// The result of the bitwise NOT operation.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static (IPAddress Address, int Subnet) BitwiseNot(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Computes the bitwise AND of two (IPAddress Address, int Subnet) instances.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The left-hand cidr.</param>
+    /// <param name="other">The right-hand cidr.</param>
+    /// <returns>
+    /// The result of the bitwise AND operation.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static (IPAddress Address, int Subnet) BitwiseAnd(
+        this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Computes the bitwise OR of two (IPAddress Address, int Subnet) instances.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The left-hand cidr.</param>
+    /// <param name="other">The right-hand cidr.</param>
+    /// <returns>
+    /// The result of the bitwise OR operation.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static (IPAddress Address, int Subnet) BitwiseOr(
+        this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Adds the <paramref name="value"/> to the (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr.</param>
+    /// <param name="value">The value to add.</param>
+    /// <returns>
+    /// The (IPAddress Address, int Subnet) augmented by the <paramref name="value"/>.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static (IPAddress Address, int Subnet) Add(this DbFunctions _, (IPAddress Address, int Subnet) cidr, int value)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Subtracts the <paramref name="value"/> from the (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The inet.</param>
+    /// <param name="value">The value to subtract.</param>
+    /// <returns>
+    /// The (IPAddress Address, int Subnet) augmented by the <paramref name="value"/>.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static (IPAddress Address, int Subnet) Subtract(this DbFunctions _, (IPAddress Address, int Subnet) cidr, int value)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Subtracts one (IPAddress Address, int Subnet) from another (IPAddress Address, int Subnet).
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr from which to subtract.</param>
+    /// <param name="other">The cidr to subtract.</param>
+    /// <returns>
+    /// The difference between the two addresses.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static int Subtract(
+        this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Returns the abbreviated display format as text.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr to abbreviate.</param>
+    /// <returns>
+    /// The abbreviated display format as text.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static string Abbreviate(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Returns the broadcast address for a network.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr used to derive the broadcast address.</param>
+    /// <returns>
+    /// The broadcast address for a network.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static IPAddress Broadcast(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Extracts the family of an address; 4 for IPv4, 6 for IPv6.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr used to derive the family.</param>
+    /// <returns>
+    /// The family of an address; 4 for IPv4, 6 for IPv6.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static int Family(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Extracts the host (i.e. the IP address) as text.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr from which to extract the host.</param>
+    /// <returns>
+    /// The host (i.e. the IP address) as text.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static string Host(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Constructs the host mask for the network.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr used to construct the host mask.</param>
+    /// <returns>
+    /// The constructed host mask.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static IPAddress HostMask(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Extracts the length of the subnet mask.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr used to extract the subnet length.</param>
+    /// <returns>
+    /// The length of the subnet mask.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static int MaskLength(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Constructs the subnet mask for the network.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr used to construct the subnet mask.</param>
+    /// <returns>
+    /// The subnet mask for the network.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static IPAddress Netmask(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Extracts the network part of the address.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr used to extract the network.</param>
+    /// <returns>
+    /// The network part of the address.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static (IPAddress Address, int Subnet) Network(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Sets the length of the subnet mask.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr to modify.</param>
+    /// <param name="length">The subnet mask length to set.</param>
+    /// <returns>
+    /// The network with a subnet mask of the specified length.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static (IPAddress Address, int Subnet) SetMaskLength(this DbFunctions _, (IPAddress Address, int Subnet) cidr, int length)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Extracts the IP address and subnet mask as text.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The cidr to extract as text.</param>
+    /// <returns>
+    /// The IP address and subnet mask as text.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static string Text(this DbFunctions _, (IPAddress Address, int Subnet) cidr)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Tests if the addresses are in the same family.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The primary cidr.</param>
+    /// <param name="other">The other cidr.</param>
+    /// <returns>
+    /// True if the addresses are in the same family; otherwise, false.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static bool SameFamily(this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    /// Constructs the smallest network which includes both of the given networks.
+    /// </summary>
+    /// <param name="_">The <see cref="DbFunctions"/> instance.</param>
+    /// <param name="cidr">The first cidr.</param>
+    /// <param name="other">The second cidr.</param>
+    /// <returns>
+    /// The smallest network which includes both of the given networks.
+    /// </returns>
+    /// <exception cref="NotSupportedException">
+    /// This method is only intended for use via SQL translation as part of an EF Core LINQ query.
+    /// </exception>
+    [Obsolete("Use the overload which accepts NpgsqlCidr", error: true)]
+    public static (IPAddress Address, int Subnet) Merge(
+        this DbFunctions _, (IPAddress Address, int Subnet) cidr, (IPAddress Address, int Subnet) other)
+        => throw new NotSupportedException();
+
+    #endregion Obsolete
 }

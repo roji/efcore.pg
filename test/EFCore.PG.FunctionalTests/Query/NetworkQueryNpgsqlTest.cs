@@ -32,7 +32,7 @@ public class NetworkQueryNpgsqlTest : IClassFixture<NetworkQueryNpgsqlTest.Netwo
     public void Demonstrate_ValueTypeParametersAreDuplicated()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
 
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.ContainsOrEqual(x.Cidr, cidr))
@@ -138,7 +138,7 @@ WHERE n."Macaddr" = MACADDR '123456000002'
     #region RelationalOperatorTests
 
     [Fact]
-    public void IPAddress_inet_LessThan_inet()
+    public void LessThan_IPAddress()
     {
         using var context = CreateContext();
         var count = context.NetTestEntities.Count(x => EF.Functions.LessThan(x.Inet, IPAddress.Parse("192.168.1.7")));
@@ -153,10 +153,10 @@ WHERE n."Inet" < INET '192.168.1.7'
     }
 
     [Fact]
-    public void ValueTuple_cidr_LessThan_cidr()
+    public void LessThan_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.LessThan(x.Cidr, cidr))
             .ToArray();
@@ -172,7 +172,7 @@ WHERE n."Cidr" < @__cidr_1
     }
 
     [Fact]
-    public void PhysicalAddress_macaddr_LessThan_macaddr()
+    public void LessThan_PhysicalAddress()
     {
         using var context = CreateContext();
         var count = context.NetTestEntities.Count(x => EF.Functions.LessThan(x.Macaddr, PhysicalAddress.Parse("12-34-56-00-00-07")));
@@ -188,7 +188,7 @@ WHERE n."Macaddr" < MACADDR '123456000007'
 
     [ConditionalFact]
     [MinimumPostgresVersion(10, 0)]
-    public void PhysicalAddress_macaddr8_LessThan_macaddr8()
+    public void LessThan_PhysicalAddress_macaddr8()
     {
         using var context = CreateContext();
         var count = context.NetTestEntities.Count(x => EF.Functions.LessThan(x.Macaddr8, PhysicalAddress.Parse("08-00-2B-01-02-03-04-07")));
@@ -203,7 +203,7 @@ WHERE n."Macaddr8" < MACADDR8 '08002B0102030407'
     }
 
     [Fact]
-    public void IPAddress_inet_LessThanOrEqual_inet()
+    public void LessThanOrEqual_IPAddress()
     {
         using var context = CreateContext();
         var count = context.NetTestEntities.Count(x => EF.Functions.LessThanOrEqual(x.Inet, IPAddress.Parse("192.168.1.7")));
@@ -218,10 +218,10 @@ WHERE n."Inet" <= INET '192.168.1.7'
     }
 
     [Fact]
-    public void ValueTuple_cidr_LessThanOrEqual_cidr()
+    public void LessThanOrEqual_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.LessThanOrEqual(x.Cidr, cidr))
             .ToArray();
@@ -237,7 +237,7 @@ WHERE n."Cidr" <= @__cidr_1
     }
 
     [Fact]
-    public void PhysicalAddress_macaddr_LessThanOrEqual_macaddr()
+    public void LessThanOrEqual_PhysicalAddress()
     {
         using var context = CreateContext();
         var count = context.NetTestEntities.Count(x => EF.Functions.LessThanOrEqual(x.Macaddr, PhysicalAddress.Parse("12-34-56-00-00-07")));
@@ -253,7 +253,7 @@ WHERE n."Macaddr" <= MACADDR '123456000007'
 
     [ConditionalFact]
     [MinimumPostgresVersion(10, 0)]
-    public void PhysicalAddress_macaddr8_LessThanOrEqual_macaddr8()
+    public void LessThanOrEqual_PhysicalAddress_macaddr8()
     {
         using var context = CreateContext();
         var count = context.NetTestEntities.Count(x => EF.Functions.LessThanOrEqual(x.Macaddr8, PhysicalAddress.Parse("08-00-2B-01-02-03-04-07")));
@@ -268,7 +268,7 @@ WHERE n."Macaddr8" <= MACADDR8 '08002B0102030407'
     }
 
     [Fact]
-    public void IPAddress_inet_GreaterThanOrEqual_inet()
+    public void GreaterThanOrEqual_IPAddress()
     {
         using var context = CreateContext();
         var count = context.NetTestEntities.Count(x => EF.Functions.GreaterThanOrEqual(x.Inet, IPAddress.Parse("192.168.1.7")));
@@ -283,10 +283,10 @@ WHERE n."Inet" >= INET '192.168.1.7'
     }
 
     [Fact]
-    public void ValueTuple_cidr_GreaterThanOrEqual_cidr()
+    public void GreaterThanOrEqual_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.GreaterThanOrEqual(x.Cidr, cidr))
             .ToArray();
@@ -302,7 +302,7 @@ WHERE n."Cidr" >= @__cidr_1
     }
 
     [Fact]
-    public void PhysicalAddress_macaddr_GreaterThanOrEqual_macaddr()
+    public void GreaterThanOrEqual_PhysicalAddress()
     {
         using var context = CreateContext();
         var count = context.NetTestEntities.Count(x => EF.Functions.GreaterThanOrEqual(x.Macaddr, PhysicalAddress.Parse("12-34-56-00-00-07")));
@@ -318,7 +318,7 @@ WHERE n."Macaddr" >= MACADDR '123456000007'
 
     [ConditionalFact]
     [MinimumPostgresVersion(10, 0)]
-    public void PhysicalAddress_macaddr8_GreaterThanOrEqual_macaddr8()
+    public void GreaterThanOrEqual_PhysicalAddress_macaddr8()
     {
         using var context = CreateContext();
         var count = context.NetTestEntities.Count(x => EF.Functions.GreaterThanOrEqual(x.Macaddr8, PhysicalAddress.Parse("08-00-2B-01-02-03-04-07")));
@@ -333,7 +333,7 @@ WHERE n."Macaddr8" >= MACADDR8 '08002B0102030407'
     }
 
     [Fact]
-    public void IPAddress_inet_GreaterThan_inet()
+    public void GreaterThan_IPAddress()
     {
         using var context = CreateContext();
         var count = context.NetTestEntities.Count(x => EF.Functions.GreaterThan(x.Inet, IPAddress.Parse("192.168.1.7")));
@@ -348,10 +348,10 @@ WHERE n."Inet" > INET '192.168.1.7'
     }
 
     [Fact]
-    public void ValueTuple_cidr_GreaterThan_cidr()
+    public void GreaterThan_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.GreaterThan(x.Cidr, cidr))
             .ToArray();
@@ -367,7 +367,7 @@ WHERE n."Cidr" > @__cidr_1
     }
 
     [Fact]
-    public void PhysicalAddress_macaddr_GreaterThan_macaddr()
+    public void GreaterThan_PhysicalAddress()
     {
         using var context = CreateContext();
         var count = context.NetTestEntities.Count(x => EF.Functions.GreaterThan(x.Macaddr, PhysicalAddress.Parse("12-34-56-00-00-07")));
@@ -383,7 +383,7 @@ WHERE n."Macaddr" > MACADDR '123456000007'
 
     [ConditionalFact]
     [MinimumPostgresVersion(10, 0)]
-    public void PhysicalAddress_macaddr8_GreaterThan_macaddr8()
+    public void GreaterThan_PhysicalAddress_macaddr8()
     {
         using var context = CreateContext();
         var count = context.NetTestEntities.Count(x => EF.Functions.GreaterThan(x.Macaddr8, PhysicalAddress.Parse("08-00-2B-01-02-03-04-07")));
@@ -402,7 +402,7 @@ WHERE n."Macaddr8" > MACADDR8 '08002B0102030407'
     #region ContainmentOperatorTests
 
     [Fact]
-    public void IPAddress_inet_ContainedBy_inet()
+    public void ContainedBy_IPAddress_and_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -421,17 +421,17 @@ WHERE n."Inet" << @__inet_1
     }
 
     [Fact]
-    public void IPAddress_inet_ContainedBy_cidr()
+    public void ContainedBy_IPAddress_and_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.ContainedBy(x.Inet, cidr))
             .ToArray();
 
         AssertSql(
 """
-@__cidr_1='(0.0.0.0, 0)' (DbType = Object)
+@__cidr_1='0.0.0.0/0' (DbType = Object)
 
 SELECT n."Id", n."Cidr", n."Inet", n."Macaddr", n."Macaddr8", n."TextInet", n."TextMacaddr"
 FROM "NetTestEntities" AS n
@@ -440,10 +440,10 @@ WHERE n."Inet" << @__cidr_1
     }
 
     [Fact]
-    public void ValueTuple_cidr_ContainedBy_cidr()
+    public void ContainedBy_NpgsqlCidr_and_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.ContainedBy(x.Cidr, cidr))
             .ToArray();
@@ -459,7 +459,7 @@ WHERE n."Cidr" << @__cidr_1
     }
 
     [Fact]
-    public void IPAddress_inet_ContainedByOrEqual_inet()
+    public void ContainedByOrEqual_IPAddress_and_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -478,17 +478,17 @@ WHERE n."Inet" <<= @__inet_1
     }
 
     [Fact]
-    public void IPAddress_inet_ContainedByOrEqual_cidr()
+    public void ContainedByOrEqual_IPAddress_and_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.ContainedByOrEqual(x.Inet, cidr))
             .ToArray();
 
         AssertSql(
 """
-@__cidr_1='(0.0.0.0, 0)' (DbType = Object)
+@__cidr_1='0.0.0.0/0' (DbType = Object)
 
 SELECT n."Id", n."Cidr", n."Inet", n."Macaddr", n."Macaddr8", n."TextInet", n."TextMacaddr"
 FROM "NetTestEntities" AS n
@@ -497,10 +497,10 @@ WHERE n."Inet" <<= @__cidr_1
     }
 
     [Fact]
-    public void ValueTuple_cidr_ContainedByOrEqual_cidr()
+    public void ContainedByOrEqual_NpgsqlCidr_and_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.ContainedByOrEqual(x.Cidr, cidr))
             .ToArray();
@@ -516,7 +516,7 @@ WHERE n."Cidr" <<= @__cidr_1
     }
 
     [Fact]
-    public void IPAddress_inet_Contains_inet()
+    public void Contains_IPAddress_and_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -535,7 +535,7 @@ WHERE n."Inet" >> @__inet_1
     }
 
     [Fact]
-    public void ValueTuple_cidr_Contains_inet()
+    public void Contains_NpgsqlCidr_and_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -554,10 +554,10 @@ WHERE n."Cidr" >> @__inet_1
     }
 
     [Fact]
-    public void ValueTuple_cidr_Contains_cidr()
+    public void Contains_NpgsqlCidr_and_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.Contains(x.Cidr, cidr))
             .ToArray();
@@ -573,7 +573,7 @@ WHERE n."Cidr" >> @__cidr_1
     }
 
     [Fact]
-    public void IPAddress_inet_ContainsOrEqual_inet()
+    public void ContainsOrEqual_IPAddress_and_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -592,7 +592,7 @@ WHERE n."Inet" >>= @__inet_1
     }
 
     [Fact]
-    public void ValueTuple_cidr_ContainsOrEqual_inet()
+    public void ContainsOrEqual_NpgsqlCidr_and_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -611,10 +611,10 @@ WHERE n."Cidr" >>= @__inet_1
     }
 
     [Fact]
-    public void ValueTuple_cidr_ContainsOrEqual_cidr()
+    public void ContainsOrEqual_NpgsqlCidr_and_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.ContainsOrEqual(x.Cidr, cidr))
             .ToArray();
@@ -630,7 +630,7 @@ WHERE n."Cidr" >>= @__cidr_1
     }
 
     [Fact]
-    public void IPAddress_inet_ContainsOrContainedBy_inet()
+    public void ContainsOrContainedBy_IPAddress_and_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -649,17 +649,17 @@ WHERE n."Inet" && @__inet_1
     }
 
     [Fact]
-    public void IPAddress_inet_ContainsOrContainedBy_cidr()
+    public void ContainsOrContainedBy_IPAddress_and_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.ContainsOrContainedBy(x.Inet, cidr))
             .ToArray();
 
         AssertSql(
 """
-@__cidr_1='(0.0.0.0, 0)' (DbType = Object)
+@__cidr_1='0.0.0.0/0' (DbType = Object)
 
 SELECT n."Id", n."Cidr", n."Inet", n."Macaddr", n."Macaddr8", n."TextInet", n."TextMacaddr"
 FROM "NetTestEntities" AS n
@@ -668,7 +668,7 @@ WHERE n."Inet" && @__cidr_1
     }
 
     [Fact]
-    public void ValueTuple_cidr_ContainsOrContainedBy_inet()
+    public void ContainsOrContainedBy_NpgsqlCidr_and_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -687,10 +687,10 @@ WHERE n."Cidr" && @__inet_1
     }
 
     [Fact]
-    public void ValueTuple_cidr_ContainsOrContainedBy_cidr()
+    public void ContainsOrContainedBy_NpgsqlCidr_and_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Where(x => EF.Functions.ContainsOrContainedBy(x.Cidr, cidr))
             .ToArray();
@@ -710,7 +710,7 @@ WHERE n."Cidr" && @__cidr_1
     #region BitwiseOperatorTests
 
     [Fact]
-    public void IPAddress_inet_BitwiseNot()
+    public void BitwiseNot_IPAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -725,7 +725,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_BitwiseNot()
+    public void BitwiseNot_NpgsqlCidr()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -740,7 +740,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void PhysicalAddress_macaddr_BitwiseNot()
+    public void BitwiseNot_PhysicalAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -756,7 +756,7 @@ FROM "NetTestEntities" AS n
 
     [ConditionalFact]
     [MinimumPostgresVersion(10, 0)]
-    public void PhysicalAddress_macaddr8_BitwiseNot()
+    public void BitwiseNot_PhysicalAddress_macaddr8()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -771,7 +771,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_BitwiseAnd_inet()
+    public void BitwiseAnd_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -789,17 +789,17 @@ WHERE n."Inet" = n."Inet" & @__inet_1 OR n."Inet" IS NULL
     }
 
     [Fact]
-    public void ValueTuple_cidr_BitwiseAnd_cidr()
+    public void BitwiseAnd_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Select(x => EF.Functions.BitwiseAnd(x.Cidr, cidr))
             .ToArray();
 
         AssertSql(
 """
-@__cidr_1='(0.0.0.0, 0)' (DbType = Object)
+@__cidr_1='0.0.0.0/0' (DbType = Object)
 
 SELECT n."Cidr" & @__cidr_1
 FROM "NetTestEntities" AS n
@@ -807,7 +807,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void PhysicalAddress_macaddr_BitwiseAnd_macaddr()
+    public void BitwiseAnd_PhysicalAddress()
     {
         using var context = CreateContext();
         var macaddr = new PhysicalAddress(new byte[6]);
@@ -826,7 +826,7 @@ FROM "NetTestEntities" AS n
 
     [ConditionalFact]
     [MinimumPostgresVersion(10, 0)]
-    public void PhysicalAddress_macaddr8_BitwiseAnd_macaddr8()
+    public void BitwiseAnd_PhysicalAddress_macaddr8()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -841,7 +841,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_BitwiseOr_inet()
+    public void BitwiseOr_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -859,17 +859,17 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_BitwiseOr_cidr()
+    public void BitwiseOr_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Select(x => EF.Functions.BitwiseOr(x.Cidr, cidr))
             .ToArray();
 
         AssertSql(
 """
-@__cidr_1='(0.0.0.0, 0)' (DbType = Object)
+@__cidr_1='0.0.0.0/0' (DbType = Object)
 
 SELECT n."Cidr" | @__cidr_1
 FROM "NetTestEntities" AS n
@@ -877,7 +877,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void PhysicalAddress_macaddr_BitwiseOr_macaddr()
+    public void BitwiseOr_PhysicalAddress()
     {
         using var context = CreateContext();
         var macaddr = new PhysicalAddress(new byte[6]);
@@ -896,7 +896,7 @@ FROM "NetTestEntities" AS n
 
     [ConditionalFact]
     [MinimumPostgresVersion(10, 0)]
-    public void PhysicalAddress_macaddr8_BitwiseOr_macaddr8()
+    public void BitwiseOr_PhysicalAddress_macaddr8()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -915,7 +915,7 @@ FROM "NetTestEntities" AS n
     #region ArithmeticOperatorTests
 
     [Fact]
-    public void IPAddress_inet_Add_int()
+    public void Add_IPAddress_and_int()
     {
         using var context = CreateContext();
         var actual = context.NetTestEntities.Single(x => EF.Functions.Add(x.Inet, 1) == IPAddress.Parse("192.168.1.2")).Inet;
@@ -931,7 +931,7 @@ LIMIT 2
     }
 
     [Fact]
-    public void ValueTuple_cidr_Add_int()
+    public void Add_NpgsqlCidr_and_int()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -946,7 +946,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_Subtract_int()
+    public void Subtract_IPAddress_and_int()
     {
         using var context = CreateContext();
         var actual = context.NetTestEntities.Single(x => EF.Functions.Subtract(x.Inet, 1) == IPAddress.Parse("192.168.1.1")).Inet;
@@ -962,7 +962,7 @@ LIMIT 2
     }
 
     [Fact]
-    public void ValueTuple_cidr_Subtract_int()
+    public void Subtract_NpgsqlCidr_and_int()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -977,7 +977,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_Subtract_inet()
+    public void Subtract_IPAddress_and_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -995,10 +995,10 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_Subtract_cidr()
+    public void Subtract_NpgsqlCidr_and_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Select(x => EF.Functions.Subtract(x.Cidr, cidr))
             .ToArray();
@@ -1017,7 +1017,7 @@ FROM "NetTestEntities" AS n
     #region FunctionTests
 
     [Fact]
-    public void IPAddress_inet_Abbreviate()
+    public void Abbreviate_IPAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1032,7 +1032,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_Abbreviate()
+    public void Abbreviate_NpgsqlCidr()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1047,7 +1047,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_Broadcast()
+    public void Broadcast_IPAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1062,7 +1062,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_Broadcast()
+    public void Broadcast_NpgsqlCidr()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1077,7 +1077,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_Family()
+    public void Family_IPAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1092,7 +1092,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_Family()
+    public void Family_NpgsqlCidr()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1107,7 +1107,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_Host()
+    public void Host_IPAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1122,7 +1122,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_Host()
+    public void Host_NpgsqlCidr()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1137,7 +1137,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_HostMask()
+    public void HostMask_IPAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1152,7 +1152,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_HostMask()
+    public void HostMask_NpgsqlCidr()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1167,7 +1167,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_MaskLength()
+    public void MaskLength_IPAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1182,7 +1182,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_MaskLength()
+    public void MaskLength_NpgsqlCidr()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1197,7 +1197,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_Netmask()
+    public void Netmask_IPAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1212,7 +1212,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_Netmask()
+    public void Netmask_NpgsqlCidr()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1227,7 +1227,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_Network()
+    public void Network_IPAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1242,7 +1242,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_Network()
+    public void Network_NpgsqlCidr()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1257,7 +1257,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_SetMaskLength()
+    public void SetMaskLength_IPAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1272,7 +1272,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_SetMaskLength()
+    public void SetMaskLength_NpgsqlCidr()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1287,7 +1287,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_Text()
+    public void Text_IPAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1302,7 +1302,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_Text()
+    public void Text_NpgsqlCidr()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1317,7 +1317,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_SameFamily()
+    public void SameFamily_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -1335,10 +1335,10 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_SameFamily()
+    public void SameFamily_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Select(x => EF.Functions.SameFamily(x.Cidr, cidr))
             .ToArray();
@@ -1353,7 +1353,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void IPAddress_inet_Merge()
+    public void Merge_IPAddress()
     {
         using var context = CreateContext();
         var inet = IPAddress.Any;
@@ -1371,10 +1371,10 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void ValueTuple_cidr_Merge()
+    public void Merge_NpgsqlCidr()
     {
         using var context = CreateContext();
-        (IPAddress Address, int Subnet) cidr = (IPAddress.Any, default);
+        var cidr = new NpgsqlCidr(IPAddress.Any, default);
         var _ = context.NetTestEntities
             .Select(x => EF.Functions.Merge(x.Cidr, cidr))
             .ToArray();
@@ -1389,7 +1389,7 @@ FROM "NetTestEntities" AS n
     }
 
     [Fact]
-    public void PhysicalAddress_macaddr_Truncate()
+    public void Truncate_PhysicalAddress()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1405,7 +1405,7 @@ FROM "NetTestEntities" AS n
 
     [ConditionalFact]
     [MinimumPostgresVersion(10, 0)]
-    public void PhysicalAddress_macaddr8_Truncate()
+    public void Truncate_PhysicalAddress_macaddr8()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1421,7 +1421,7 @@ FROM "NetTestEntities" AS n
 
     [ConditionalFact]
     [MinimumPostgresVersion(10, 0)]
-    public void PhysicalAddress_macaddr8_Set7BitMac8()
+    public void Set7BitMac8_PhysicalAddress_macaddr8()
     {
         using var context = CreateContext();
         var _ = context.NetTestEntities
@@ -1470,7 +1470,7 @@ FROM "NetTestEntities" AS n
         /// <summary>
         /// The network address.
         /// </summary>
-        public (IPAddress Address, int Subnet) Cidr { get; set; }
+        public NpgsqlCidr Cidr { get; set; }
 
         /// <summary>
         /// The MAC address.
@@ -1534,7 +1534,7 @@ FROM "NetTestEntities" AS n
                     {
                         Id = i,
                         Inet = ip,
-                        Cidr = (Address: IPAddress.Parse("192.168.1.0"), Subnet: 24),
+                        Cidr = new NpgsqlCidr(IPAddress.Parse("192.168.1.0"), 24),
                         Macaddr = macaddr,
                         Macaddr8 = macaddr8,
                         TextInet = ip.ToString(),

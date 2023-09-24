@@ -182,7 +182,7 @@ public class NpgsqlCidrTypeMapping : NpgsqlTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public NpgsqlCidrTypeMapping() : base("cidr", typeof((IPAddress, int)), NpgsqlDbType.Cidr) {}
+    public NpgsqlCidrTypeMapping() : base("cidr", typeof(NpgsqlCidr), NpgsqlDbType.Cidr) {}
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -210,8 +210,8 @@ public class NpgsqlCidrTypeMapping : NpgsqlTypeMapping
     /// </summary>
     protected override string GenerateNonNullSqlLiteral(object value)
     {
-        var cidr = ((IPAddress Address, int Subnet))value;
-        return $"CIDR '{cidr.Address}/{cidr.Subnet}'";
+        var cidr = (NpgsqlCidr)value;
+        return $"CIDR '{cidr.Address}/{cidr.Netmask}'";
     }
 
     /// <summary>
@@ -222,11 +222,11 @@ public class NpgsqlCidrTypeMapping : NpgsqlTypeMapping
     /// </summary>
     public override Expression GenerateCodeLiteral(object value)
     {
-        var cidr = ((IPAddress Address, int Subnet))value;
+        var cidr = (NpgsqlCidr)value;
         return Expression.New(
             Constructor,
             Expression.Call(ParseMethod, Expression.Constant(cidr.Address.ToString())),
-            Expression.Constant(cidr.Subnet));
+            Expression.Constant(cidr.Netmask));
     }
 
     private static readonly MethodInfo ParseMethod = typeof(IPAddress).GetMethod("Parse", new[] { typeof(string) })!;

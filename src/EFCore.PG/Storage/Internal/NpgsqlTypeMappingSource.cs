@@ -320,7 +320,7 @@ public class NpgsqlTypeMappingSource : RelationalTypeMappingSource
 
             { typeof(PhysicalAddress),                     _macaddr              },
             { typeof(IPAddress),                           _inet                 },
-            { typeof((IPAddress, int)),                    _cidr                 },
+            { typeof(NpgsqlCidr),                          _cidr                 },
 
             { typeof(BitArray),                            _varbit               },
             { typeof(ImmutableDictionary<string, string>), _immutableHstore      },
