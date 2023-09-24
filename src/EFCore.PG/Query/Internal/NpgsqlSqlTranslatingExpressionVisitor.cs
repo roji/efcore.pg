@@ -21,6 +21,7 @@ public class NpgsqlSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
     private readonly NpgsqlSqlExpressionFactory _sqlExpressionFactory;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly NpgsqlJsonPocoTranslator _jsonPocoTranslator;
+    private readonly NpgsqlNetworkTranslator _networkTranslator;
 
     private readonly RelationalTypeMapping _timestampMapping;
     private readonly RelationalTypeMapping _timestampTzMapping;
@@ -65,6 +66,7 @@ public class NpgsqlSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         _queryCompilationContext = queryCompilationContext;
         _sqlExpressionFactory = (NpgsqlSqlExpressionFactory)dependencies.SqlExpressionFactory;
         _jsonPocoTranslator = ((NpgsqlMemberTranslatorProvider)Dependencies.MemberTranslatorProvider).JsonPocoTranslator;
+        _networkTranslator = ((NpgsqlMethodCallTranslatorProvider)Dependencies.MethodCallTranslatorProvider).NetworkTranslator;
         _typeMappingSource = dependencies.TypeMappingSource;
         _timestampMapping = _typeMappingSource.FindMapping("timestamp without time zone")!;
         _timestampTzMapping = _typeMappingSource.FindMapping("timestamp with time zone")!;
@@ -230,6 +232,38 @@ public class NpgsqlSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                 methodCallExpression.Object!, methodCallExpression.Arguments[0], StartsEndsWithContains.Contains, out var translation3))
         {
             return translation3;
+        }
+
+        // Many methods on NpgsqlNetworkDbFunctionsExtensions accept NpgsqlInet, but we have implicit cast operators from IPAddress
+        // and from NpgsqlCidr to it. The resulting Convert node interferes with translation, so we call into
+        // NpgsqlNetworkDbFunctionsExtensions via a special path here.
+        if (method.DeclaringType == typeof(NpgsqlNetworkDbFunctionsExtensions)
+            && methodCallExpression.Arguments.Any(a => a is UnaryExpression { NodeType: ExpressionType.Convert } convert
+                && convert.Type == typeof(NpgsqlInet)))
+        {
+            var arguments = new SqlExpression[methodCallExpression.Arguments.Count];
+
+            for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
+            {
+                var argument = methodCallExpression.Arguments[i];
+
+                if (argument is UnaryExpression { NodeType: ExpressionType.Convert } convert
+                    && convert.Type == typeof(NpgsqlInet))
+                {
+                    argument = convert.Operand;
+                }
+
+                var visitedArgument = Visit(argument);
+                if (TranslationFailed(argument, visitedArgument, out var sqlArgument))
+                {
+                    return base.VisitMethodCall(methodCallExpression);
+                }
+
+                arguments[i] = sqlArgument!;
+            }
+
+            return _networkTranslator.Translate(instance: null, method, arguments, _queryCompilationContext.Logger)
+                ?? base.VisitMethodCall(methodCallExpression);
         }
 
         return base.VisitMethodCall(methodCallExpression);

@@ -25,6 +25,14 @@ public class NpgsqlMethodCallTranslatorProvider : RelationalMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual NpgsqlNetworkTranslator NetworkTranslator { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public NpgsqlMethodCallTranslatorProvider(
         RelationalMethodCallTranslatorProviderDependencies dependencies,
         IModel model,
@@ -39,6 +47,7 @@ public class NpgsqlMethodCallTranslatorProvider : RelationalMethodCallTranslator
         var typeMappingSource = (NpgsqlTypeMappingSource)dependencies.RelationalTypeMappingSource;
         var jsonTranslator = new NpgsqlJsonPocoTranslator(typeMappingSource, sqlExpressionFactory, model);
         LTreeTranslator = new NpgsqlLTreeTranslator(typeMappingSource, sqlExpressionFactory, model);
+        NetworkTranslator = new NpgsqlNetworkTranslator(typeMappingSource, sqlExpressionFactory, model);
 
         AddTranslators(new IMethodCallTranslator[]
         {
@@ -54,7 +63,7 @@ public class NpgsqlMethodCallTranslatorProvider : RelationalMethodCallTranslator
             new NpgsqlLikeTranslator(sqlExpressionFactory),
             LTreeTranslator,
             new NpgsqlMathTranslator(typeMappingSource, sqlExpressionFactory, model),
-            new NpgsqlNetworkTranslator(typeMappingSource, sqlExpressionFactory, model),
+            NetworkTranslator,
             new NpgsqlNewGuidTranslator(sqlExpressionFactory, npgsqlOptions.PostgresVersion),
             new NpgsqlObjectToStringTranslator(typeMappingSource, sqlExpressionFactory),
             new NpgsqlRandomTranslator(sqlExpressionFactory),

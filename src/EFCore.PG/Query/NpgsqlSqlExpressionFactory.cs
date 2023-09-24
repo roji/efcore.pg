@@ -234,15 +234,15 @@ public class NpgsqlSqlExpressionFactory : SqlExpressionFactory
     {
         switch (operatorType)
         {
-            // cidr gets implicitly converted to inet, so e.g. cidr & cidr yields an inet, not a cidr
-            case ExpressionType.And or ExpressionType.Or
-                when left.Type == typeof(NpgsqlCidr) && right.Type == typeof(NpgsqlCidr):
-            {
-                return (SqlBinaryExpression)ApplyTypeMapping(
-                    new SqlBinaryExpression(operatorType, left, right, typeof(IPAddress), null),
-                    typeMapping ?? _typeMappingSource.FindMapping(typeof(IPAddress)));
-            }
-
+            // // cidr gets implicitly converted to inet, so e.g. cidr & cidr yields an inet, not a cidr
+            // case ExpressionType.And or ExpressionType.Or
+            //     when left.Type == typeof(NpgsqlCidr) && right.Type == typeof(NpgsqlCidr):
+            // {
+            //     return (SqlBinaryExpression)ApplyTypeMapping(
+            //         new SqlBinaryExpression(operatorType, left, right, typeof(IPAddress), null),
+            //         typeMapping ?? _typeMappingSource.FindMapping(typeof(IPAddress)));
+            // }
+            //
             case ExpressionType.Subtract
                 when left.Type == typeof(DateTime) && right.Type == typeof(DateTime)
                 || left.Type == typeof(DateTimeOffset) && right.Type == typeof(DateTimeOffset)
@@ -442,19 +442,19 @@ public class NpgsqlSqlExpressionFactory : SqlExpressionFactory
 
         switch (binary.OperatorType)
         {
-            // cidr gets implicitly converted to inet, so e.g. cidr & cidr yields an inet, not a cidr
-            case ExpressionType.And or ExpressionType.Or
-                when left.Type == typeof(NpgsqlCidr) && right.Type == typeof(NpgsqlCidr):
-            {
-                var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right);
-
-                return new SqlBinaryExpression(
-                    binary.OperatorType,
-                    ApplyTypeMapping(left, inferredTypeMapping),
-                    ApplyTypeMapping(right, inferredTypeMapping),
-                    binary.Type,
-                    typeMapping ?? _typeMappingSource.FindMapping(binary.Type));
-            }
+            // // cidr gets implicitly converted to inet, so e.g. cidr & cidr yields an inet, not a cidr
+            // case ExpressionType.And or ExpressionType.Or
+            //     when left.Type == typeof(NpgsqlCidr) && right.Type == typeof(NpgsqlCidr):
+            // {
+            //     var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right);
+            //
+            //     return new SqlBinaryExpression(
+            //         binary.OperatorType,
+            //         ApplyTypeMapping(left, inferredTypeMapping),
+            //         ApplyTypeMapping(right, inferredTypeMapping),
+            //         binary.Type,
+            //         typeMapping ?? _typeMappingSource.FindMapping(binary.Type));
+            // }
 
             // DateTime + TimeSpan => DateTime
             // DateTimeOffset + TimeSpan => DateTimeOffset
