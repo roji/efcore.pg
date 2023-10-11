@@ -17,6 +17,7 @@ public class NpgsqlQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 {
     private readonly NpgsqlTypeMappingSource _typeMappingSource;
     private readonly NpgsqlSqlExpressionFactory _sqlExpressionFactory;
+    private readonly QueryCompilationContext _queryCompilationContext;
 
     #region MethodInfos
 
@@ -46,6 +47,7 @@ public class NpgsqlQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         QueryCompilationContext queryCompilationContext)
         : base(dependencies, relationalDependencies, queryCompilationContext)
     {
+        _queryCompilationContext = queryCompilationContext;
         _typeMappingSource = (NpgsqlTypeMappingSource)relationalDependencies.TypeMappingSource;
         _sqlExpressionFactory = (NpgsqlSqlExpressionFactory)relationalDependencies.SqlExpressionFactory;
     }
@@ -59,6 +61,7 @@ public class NpgsqlQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     protected NpgsqlQueryableMethodTranslatingExpressionVisitor(NpgsqlQueryableMethodTranslatingExpressionVisitor parentVisitor)
         : base(parentVisitor)
     {
+        _queryCompilationContext = parentVisitor._queryCompilationContext;
         _typeMappingSource = parentVisitor._typeMappingSource;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
     }
@@ -276,6 +279,29 @@ public class NpgsqlQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                             argumentsPropagateNullability: TrueArrays[1],
                             typeof(int)),
                         _sqlExpressionFactory.Constant(0)));
+            }
+
+            switch (predicate.Body)
+            {
+                case MethodCallExpression
+                    {
+                        Method: { Name: "StartsWith" } method,
+                        Object: Expression obj,
+                        Arguments: [var item]
+                    }
+                    when
+                    // method == ...
+                    predicate.Parameters is [var predicateParam] && predicateParam == item
+                    && TranslateLambdaExpression(source, Expression.Lambda(obj, predicate.Parameters[0])) is SqlExpression translated:
+                {
+                    var escapedPatternParameter =
+                        _queryCompilationContext.RegisterRuntimeParameter(patternParameter.Name + "_rewritten", lambda);
+
+                    var foo = BuildSimplifiedShapedQuery(
+                        source, _sqlExpressionFactory.Any(translated, GetArray(sourceTable), PostgresAnyOperatorType.Like));
+
+                    return foo;
+                }
             }
 
             if (TranslateLambdaExpression(source, predicate) is not SqlExpression translatedPredicate)

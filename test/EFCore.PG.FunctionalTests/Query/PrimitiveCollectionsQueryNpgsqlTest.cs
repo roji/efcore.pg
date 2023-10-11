@@ -1189,6 +1189,26 @@ ORDER BY p."Id" NULLS FIRST
 """);
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Parameter_collection_of_string_Any_StartsWith(bool async)
+    {
+        var strings = new[] { "1", "9" };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => strings.Any(s => e.String.StartsWith(s))),
+            entryCount: 2);
+
+        AssertSql(
+"""
+SELECT p."Ints"[1] AS "Indexer", p."DateTimes"[1] AS "EnumerableElementAt", p."Strings"[2] AS "QueryableElementAt"
+FROM "PrimitiveCollectionsEntity" AS p
+WHERE p."Id" < 4
+ORDER BY p."Id" NULLS FIRST
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
