@@ -72,6 +72,40 @@ public class NpgsqlQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
         => new NpgsqlQueryableMethodTranslatingExpressionVisitor(this);
 
+    /// <inheritdoc />
+    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    {
+        var method = methodCallExpression.Method;
+        if (method.DeclaringType == typeof(NpgsqlQueryableExtensions))
+        {
+            var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
+            switch (method.Name)
+            {
+                case nameof(NpgsqlQueryableExtensions.WithNullsFirst)
+                    when genericMethod == NpgsqlQueryableExtensions.QueryableWithNullsFirstMethodInfo:
+                    return TranslateWithNullsFirst(methodCallExpression.Arguments[0], methodCallExpression.Arguments[1])
+                        ?? throw new InvalidOperationException(/* TODO  */);
+            }
+        }
+
+        return base.VisitMethodCall(methodCallExpression);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual Expression TranslateWithNullsFirst(Expression source, Expression count)
+    {
+        var translatedSource = Visit(source);
+        if (translatedSource is not ShapedQueryExpression shapedQuery)
+        {
+            return translatedSource;
+        }
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

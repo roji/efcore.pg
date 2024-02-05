@@ -787,6 +787,32 @@ WHERE m."Time"::interval = INTERVAL '15:30:10'
 
     #endregion TimeOnly
 
+    [ConditionalFact]
+    public async Task OrderBy_WithNullsFirst_queryable()
+    {
+        await using var ctx = CreateContext();
+
+        _ = await ctx.Weapons.OrderBy(c => c.AmmunitionType).WithNullsFirst(true).ToListAsync();
+
+        AssertSql(
+            """
+TODO
+""");
+    }
+
+    [ConditionalFact]
+    public async Task OrderBy_WithNullsFirst_enumerable()
+    {
+        await using var ctx = CreateContext();
+
+        _ = await ctx.Gears.Where(g => g.Weapons.OrderBy(w => w.AmmunitionType).WithNullsFirst(true).First().Id == 10).ToListAsync();
+
+        AssertSql(
+            """
+TODO
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

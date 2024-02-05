@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Extensions;
 using Xunit.Sdk;
 
 namespace Npgsql.EntityFrameworkCore.PostgreSQL.Query;
@@ -422,22 +421,6 @@ WHERE c."Address" ILIKE ALL (@__collection_0)
         await using var ctx = CreateContext();
 
         _ = await ctx.Customers.Select(c1 => ctx.Customers.Select(c2 => c2.ContactName).ToList()).ToListAsync();
-
-        AssertSql(
-            """
-SELECT c."CustomerID", c0."ContactName", c0."CustomerID"
-FROM "Customers" AS c
-LEFT JOIN LATERAL (SELECT * FROM "Customers") AS c0 ON TRUE
-ORDER BY c."CustomerID" NULLS FIRST
-""");
-    }
-
-    [ConditionalFact]
-    public async Task OrderBy_WithNullsFirst_queryable()
-    {
-        await using var ctx = CreateContext();
-
-        _ = await ctx.Customers.OrderBy(c => c.Region).WithNullFirst(true).ToListAsync();
 
         AssertSql(
             """
