@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Query.Expressions.Internal;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
@@ -139,6 +140,24 @@ public class NpgsqlQuerySqlGenerator : QuerySqlGenerator
     {
         var result = base.VisitOrdering(ordering);
 
+        if (ordering is PgOrderingExpression pgOrdering)
+        {
+            switch (pgOrdering.NullSortOrder)
+            {
+                case NullSortOrder.Unspecified:
+                    break;
+                case NullSortOrder.NullsFirst:
+                    Sql.Append(" NULLS FIRST");
+                    break;
+                case NullSortOrder.NullsLast:
+                    Sql.Append(" NULLS LAST");
+                    break;
+                default:
+                    throw new UnreachableException();
+            }
+        }
+
+        // TODO: Think about what to do with this
         if (_reverseNullOrderingEnabled)
         {
             Sql.Append(ordering.IsAscending ? " NULLS FIRST" : " NULLS LAST");
